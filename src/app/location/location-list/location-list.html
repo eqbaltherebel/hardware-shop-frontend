@@ -1,0 +1,60 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <h1>Storage Locations</h1>
+      <p class="subtitle">{{ locations.length }} locations defined</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="openForm()">
+      <mat-icon>add</mat-icon> Add Location
+    </button>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="location-grid" *ngIf="!isLoading && locations.length > 0">
+    <div class="location-card" *ngFor="let loc of locations">
+      <div class="loc-header">
+        <div class="loc-badge">{{ loc.aisle }}</div>
+        <div class="loc-actions">
+          <button mat-icon-button (click)="openForm(loc)" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="onDelete(loc)" matTooltip="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="loc-details">
+        <div class="loc-row">
+          <mat-icon>shelves</mat-icon>
+          <span>Rack <strong>{{ loc.rack }}</strong></span>
+        </div>
+        <div class="loc-row">
+          <mat-icon>layers</mat-icon>
+          <span>Shelf: <strong>{{ loc.shelf }}</strong></span>
+        </div>
+        <div class="loc-row" *ngIf="loc.notes">
+          <mat-icon>notes</mat-icon>
+          <span>{{ loc.notes }}</span>
+        </div>
+      </div>
+      <div class="loc-footer">
+        <mat-icon>inventory_2</mat-icon>
+        <span>{{ loc.itemCount || 0 }} item{{ (loc.itemCount || 0) !== 1 ? 's' : '' }} stored here</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!isLoading && locations.length === 0">
+    <mat-icon>place</mat-icon>
+    <p>No locations defined yet</p>
+    <button mat-raised-button color="primary" (click)="openForm()">Add First Location</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    <mat-icon class="spin">autorenew</mat-icon> Loading...
+  </div>
+
+</div>

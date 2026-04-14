@@ -1,0 +1,82 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <button mat-icon-button [routerLink]="['/items']">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Price History</h1>
+      <p class="subtitle">{{ history.length }} price change(s) recorded</p>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <mat-icon class="spin">autorenew</mat-icon> Loading...
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- Chart -->
+    <div class="chart-card" *ngIf="history.length > 0">
+      <canvas baseChart
+              [data]="lineChartData"
+              [options]="lineChartOptions"
+              type="line">
+      </canvas>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card" *ngIf="history.length > 0">
+      <h2>Change Log</h2>
+      <table mat-table [dataSource]="history">
+
+        <ng-container matColumnDef="changedAt">
+          <th mat-header-cell *matHeaderCellDef>Date & Time</th>
+          <td mat-cell *matCellDef="let h">
+            {{ h.changedAt | date:'dd MMM yyyy, hh:mm a' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="buyingPrice">
+          <th mat-header-cell *matHeaderCellDef>Buying Price</th>
+          <td mat-cell *matCellDef="let h">₹{{ h.buyingPrice | number:'1.2-2' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="sellingPrice">
+          <th mat-header-cell *matHeaderCellDef>Selling Price</th>
+          <td mat-cell *matCellDef="let h">₹{{ h.sellingPrice | number:'1.2-2' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="profit">
+          <th mat-header-cell *matHeaderCellDef>Profit / Unit</th>
+          <td mat-cell *matCellDef="let h">
+            <span [class]="getProfit(h) >= 0 ? 'profit-pos' : 'profit-neg'">
+              ₹{{ getProfit(h) | number:'1.2-2' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="changedBy">
+          <th mat-header-cell *matHeaderCellDef>Changed By</th>
+          <td mat-cell *matCellDef="let h">
+            <span class="user-chip">
+              <mat-icon style="font-size:14px;height:14px;width:14px">person</mat-icon>
+              {{ h.changedBy }}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+    <!-- No History -->
+    <div class="empty-state" *ngIf="history.length === 0">
+      <mat-icon>history</mat-icon>
+      <p>No price changes recorded yet</p>
+      <span>Edit this item's price to start tracking history</span>
+    </div>
+
+  </ng-container>
+</div>

@@ -1,0 +1,47 @@
+export interface Location {
+  id?: number;
+  aisle: string;
+  rack: string;
+  shelf: string;
+  notes?: string;
+  display?: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+}
+
+export interface Item {
+  id?: number;
+  name: string;
+  description?: string;
+  quantity: number;
+  buyingPrice: number;
+  sellingPrice: number;
+  location?: Location;
+  locationDisplay?: string;
+  categoryName?: string;
+  category?: Category;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ItemRequest {
+  name: string;
+  description?: string;
+  quantity: number;
+  buyingPrice: number;
+  sellingPrice: number;
+  locationId?: number;
+  categoryId?: number;
+}
+
+
+export interface PriceHistory {
+  id: number;
+  buyingPrice: number;
+  sellingPrice: number;
+  changedBy: string;
+  changedAt: string;
+}

@@ -1,0 +1,121 @@
+<div class="form-container">
+
+  <div class="form-header">
+    <button mat-icon-button routerLink="/items" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>{{ isEditMode ? 'Edit Item' : 'Add New Item' }}</h1>
+      <p class="subtitle">{{ isEditMode ? 'Update the item details below' : 'Fill in the details to add a new inventory item' }}</p>
+    </div>
+  </div>
+
+  <div class="loading-wrap" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+    <div class="form-card">
+
+      <!-- Section: Basic Info -->
+      <div class="section-title">
+        <mat-icon>info</mat-icon> Basic Information
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Item Name *</mat-label>
+        <input matInput formControlName="name" placeholder="e.g. Steel Bolt M8">
+        <mat-error>{{ nameError }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description"
+                  placeholder="Optional description..."
+                  rows="3"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Quantity *</mat-label>
+        <input matInput type="number" formControlName="quantity" min="0">
+        <mat-hint>Current stock count</mat-hint>
+        <mat-error *ngIf="form.get('quantity')?.hasError('required')">Required</mat-error>
+        <mat-error *ngIf="form.get('quantity')?.hasError('min')">Cannot be negative</mat-error>
+      </mat-form-field>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <!-- Section: Pricing -->
+      <div class="section-title">
+        <mat-icon>payments</mat-icon> Pricing
+      </div>
+
+      <div class="row-fields">
+        <mat-form-field appearance="outline">
+          <mat-label>Buying Price (₹) *</mat-label>
+          <span matPrefix>₹&nbsp;</span>
+          <input matInput type="number" formControlName="buyingPrice" min="0" step="0.01">
+          <mat-error *ngIf="form.get('buyingPrice')?.hasError('required')">Required</mat-error>
+          <mat-error *ngIf="form.get('buyingPrice')?.hasError('min')">Cannot be negative</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Selling Price (₹) *</mat-label>
+          <span matPrefix>₹&nbsp;</span>
+          <input matInput type="number" formControlName="sellingPrice" min="0" step="0.01">
+          <mat-error *ngIf="form.get('sellingPrice')?.hasError('required')">Required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Profit Preview -->
+      <div class="profit-preview" [class.profit-neg]="profitPreview < 0" *ngIf="form.get('buyingPrice')?.value || form.get('sellingPrice')?.value">
+        <mat-icon>{{ profitPreview >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+        <span>Profit per unit: <strong>₹{{ profitPreview | number:'1.2-2' }}</strong></span>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <!-- Section: Classification -->
+      <div class="section-title">
+        <mat-icon>category</mat-icon> Classification
+      </div>
+
+      <div class="row-fields">
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="categoryId">
+            <mat-option [value]="null">— None —</mat-option>
+            <mat-option *ngFor="let cat of categories" [value]="cat.id">
+              {{ cat.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Storage Location</mat-label>
+          <mat-select formControlName="locationId">
+            <mat-option [value]="null">— None —</mat-option>
+            <mat-option *ngFor="let loc of locations" [value]="loc.id">
+              {{ loc.display || ('Aisle ' + loc.aisle + ' · Rack ' + loc.rack + ' · ' + loc.shelf) }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Where this item is stored in the shop</mat-hint>
+        </mat-form-field>
+      </div>
+
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button mat-stroked-button type="button" routerLink="/items">
+        Cancel
+      </button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving">
+        <mat-spinner *ngIf="isSaving" diameter="18" class="inline-spinner"></mat-spinner>
+        <mat-icon *ngIf="!isSaving">{{ isEditMode ? 'save' : 'add_circle' }}</mat-icon>
+        {{ isEditMode ? 'Update Item' : 'Create Item' }}
+      </button>
+    </div>
+
+  </form>
+</div>

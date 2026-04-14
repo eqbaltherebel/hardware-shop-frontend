@@ -1,0 +1,66 @@
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="brand-block">
+      <mat-icon class="brand-icon">hardware</mat-icon>
+      <h1>HardwareShop</h1>
+      <p>Create your account to get started</p>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <h2>Create Account</h2>
+      <p class="card-sub">Set up your inventory management account</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Username</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input matInput formControlName="username" placeholder="Choose a username">
+          <mat-error *ngIf="form.get('username')?.hasError('required')">Username is required</mat-error>
+          <mat-error *ngIf="form.get('username')?.hasError('minlength')">Min 3 characters</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput formControlName="password"
+                 [type]="hidePassword ? 'password' : 'text'"
+                 placeholder="Create a password">
+          <button mat-icon-button matSuffix type="button"
+                  (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
+          <mat-error *ngIf="form.get('password')?.hasError('minlength')">Min 6 characters</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirm Password</mat-label>
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <input matInput formControlName="confirmPassword"
+                 [type]="hideConfirm ? 'password' : 'text'"
+                 placeholder="Repeat your password">
+          <button mat-icon-button matSuffix type="button"
+                  (click)="hideConfirm = !hideConfirm">
+            <mat-icon>{{ hideConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="form.hasError('mismatch')">Passwords do not match</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit"
+                class="submit-btn" [disabled]="isLoading">
+          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          <span *ngIf="!isLoading">Create Account</span>
+        </button>
+
+      </form>
+
+      <div class="auth-footer">
+        Already have an account?
+        <a routerLink="/login">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>

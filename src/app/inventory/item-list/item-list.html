@@ -1,0 +1,152 @@
+<div class="list-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Inventory</h1>
+      <span class="item-count">{{ dataSource.data.length }} items</span>
+    </div>
+    <div class="header-actions">
+      <button
+        mat-stroked-button
+        color="warn"
+        routerLink="/inventory"
+        *ngIf="lowStockCount > 0"
+        class="low-stock-btn"
+      >
+        <mat-icon>warning</mat-icon>
+        {{ lowStockCount }} Low Stock
+      </button>
+      <button mat-raised-button color="primary" routerLink="/items/new">
+        <mat-icon>add</mat-icon> Add Item
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search items by name or description...</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      [(ngModel)]="searchQuery"
+      (input)="onSearch(searchQuery)"
+      placeholder="e.g. bolt, hammer, pipe"
+    />
+    <button *ngIf="searchQuery" matSuffix mat-icon-button (click)="searchQuery = ''; loadItems()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="isLoading">
+    <mat-icon class="spin">autorenew</mat-icon> Loading...
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap mat-elevation-z2" *ngIf="!isLoading">
+    <table mat-table [dataSource]="dataSource" matSort>
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Item Name</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="item-name">{{ item.name }}</div>
+          <div class="item-desc" *ngIf="item.description">{{ item.description }}</div>
+        </td>
+      </ng-container>
+
+      <!-- Category -->
+      <ng-container matColumnDef="category">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+        <td mat-cell *matCellDef="let item">
+          <span class="chip-category" *ngIf="item.categoryName">{{ item.categoryName }}</span>
+          <span class="no-data" *ngIf="!item.categoryName">—</span>
+        </td>
+      </ng-container>
+
+      <!-- Location -->
+      <ng-container matColumnDef="location">
+        <th mat-header-cell *matHeaderCellDef>Location</th>
+        <td mat-cell *matCellDef="let item">
+          <span class="chip-location" *ngIf="item.locationDisplay">
+            <mat-icon style="font-size: 14px; height: 14px; width: 14px">place</mat-icon>
+            {{ item.locationDisplay }}
+          </span>
+          <span class="no-data" *ngIf="!item.locationDisplay">—</span>
+        </td>
+      </ng-container>
+
+      <!-- Quantity -->
+      <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Qty</th>
+        <td mat-cell *matCellDef="let item">
+          <span [class]="isLowStock(item.quantity) ? 'qty-low' : 'qty-ok'">
+            {{ item.quantity }}
+            <mat-icon
+              *ngIf="isLowStock(item.quantity)"
+              matTooltip="Low stock!"
+              style="font-size: 14px"
+              >warning</mat-icon
+            >
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Buying Price -->
+      <ng-container matColumnDef="buyingPrice">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Buy (₹)</th>
+        <td mat-cell *matCellDef="let item">₹{{ item.buyingPrice | number: '1.2-2' }}</td>
+      </ng-container>
+
+      <!-- Selling Price -->
+      <ng-container matColumnDef="sellingPrice">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Sell (₹)</th>
+        <td mat-cell *matCellDef="let item">
+          <div>₹{{ item.sellingPrice | number: '1.2-2' }}</div>
+          <div class="profit">+₹{{ getProfit(item) | number: '1.2-2' }} profit</div>
+        </td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let item">
+          <button
+            mat-icon-button
+            color="primary"
+            [routerLink]="['/items/edit', item.id]"
+            matTooltip="Edit item"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="onDelete(item)" matTooltip="Delete item">
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="accent"
+            [routerLink]="['/items/history', item.id]"
+            matTooltip="Price history"
+          >
+            <mat-icon>history</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        [class.low-stock-row]="isLowStock(row.quantity)"
+      ></tr>
+    </table>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="dataSource.data.length === 0">
+      <mat-icon>inventory_2</mat-icon>
+      <p>No items found</p>
+      <button mat-raised-button color="primary" routerLink="/items/new">Add First Item</button>
+    </div>
+
+    <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+  </div>
+</div>

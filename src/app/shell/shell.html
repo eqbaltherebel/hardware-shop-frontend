@@ -1,0 +1,44 @@
+<mat-sidenav-container class="shell-container">
+
+  <!-- Sidebar -->
+  <mat-sidenav mode="side" opened class="sidenav">
+    <div class="brand">
+      <mat-icon class="brand-icon">hardware</mat-icon>
+      <span>HardwareShop</span>
+    </div>
+
+    <nav class="nav-links">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/items" routerLinkActive="active" class="nav-item">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Inventory</span>
+      </a>
+      <a routerLink="/locations" routerLinkActive="active" class="nav-item">
+        <mat-icon>place</mat-icon>
+        <span>Locations</span>
+      </a>
+    </nav>
+
+    <div class="sidenav-footer">
+      <div class="user-info">
+        <mat-icon>account_circle</mat-icon>
+        <div>
+          <div class="username">{{ authService.getUsername() }}</div>
+          <div class="role">{{ authService.getRole() }}</div>
+        </div>
+      </div>
+      <button mat-icon-button (click)="logout()" matTooltip="Logout" class="logout-btn">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <!-- Main Content -->
+  <mat-sidenav-content class="main-content">
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
