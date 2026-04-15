@@ -22,12 +22,19 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+  private getStorage(): Storage | null {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined'
+      ? localStorage
+      : null;
+  }
+
   login(data: AuthRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
       tap(res => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('username', res.username);
-        localStorage.setItem('role', res.role);
+        const storage = this.getStorage();
+        storage?.setItem('token', res.token);
+        storage?.setItem('username', res.username);
+        storage?.setItem('role', res.role);
       })
     );
   }
@@ -35,27 +42,28 @@ export class AuthService {
   register(data: AuthRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
       tap(res => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('username', res.username);
-        localStorage.setItem('role', res.role);
+        const storage = this.getStorage();
+        storage?.setItem('token', res.token);
+        storage?.setItem('username', res.username);
+        storage?.setItem('role', res.role);
       })
     );
   }
 
   logout(): void {
-    localStorage.clear();
+    this.getStorage()?.clear();
     this.router.navigate(['/login']);
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return !!this.getStorage()?.getItem('token');
   }
 
   getUsername(): string {
-    return localStorage.getItem('username') || '';
+    return this.getStorage()?.getItem('username') || '';
   }
 
   getRole(): string {
-    return localStorage.getItem('role') || '';
+    return this.getStorage()?.getItem('role') || '';
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-dashboard',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, RouterModule,
     MatIconModule, MatButtonModule, MatTableModule,
@@ -53,21 +54,33 @@ export class Dashboard implements OnInit {
 
   lowStockColumns = ['name', 'location', 'quantity'];
 
-  constructor(private itemService: ItemService) {}
+  constructor(private itemService: ItemService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.itemService.getAll().subscribe({
       next: (items) => {
-        this.items = items;
-        this.calcStats(items);
-        this.buildBarChart(items);
-        this.buildDoughnutChart(items);
+        this.items = Array.isArray(items) ? items : [];
+        this.calcStats(this.items);
+        this.buildBarChart(this.items);
+        this.buildDoughnutChart(this.items);
         this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
 
-    this.itemService.getLowStock(5).subscribe(items => {
-      this.lowStockItems = items;
+    this.itemService.getLowStock(5).subscribe({
+      next: (items) => {
+        this.lowStockItems = Array.isArray(items) ? items : [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.lowStockItems = [];
+        this.cdr.detectChanges();
+      }
     });
   }
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Item, ItemRequest, PriceHistory } from '../models/item.model';
 
 @Injectable({ providedIn: 'root' })
@@ -9,13 +10,31 @@ export class ItemService {
 
   constructor(private http: HttpClient) {}
 
+  private getToken(): string | null {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined'
+      ? localStorage.getItem('token')
+      : null;
+  }
+
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const token = this.getToken();
+    return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+  }
+
+  private normalizeArray<T>(response: T[] | { data: T[] } | unknown): T[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response && typeof response === 'object' && 'data' in response && Array.isArray((response as any).data)) {
+      return (response as any).data;
+    }
+    return [];
   }
 
   getAll(): Observable<Item[]> {
-    return this.http.get<Item[]>(this.apiUrl, { headers: this.getHeaders() });
+    return this.http
+      .get<Item[] | { data: Item[] }>(this.apiUrl, { headers: this.getHeaders() })
+      .pipe(map(response => this.normalizeArray<Item>(response)));
   }
 
   getById(id: number): Observable<Item> {
@@ -35,19 +54,24 @@ export class ItemService {
   }
 
   search(query: string): Observable<Item[]> {
-    return this.http.get<Item[]>(`${this.apiUrl}/search?query=${query}`, {
-      headers: this.getHeaders(),
-    });
+    return this.http
+      .get<Item[] | { data: Item[] }>(`${this.apiUrl}/search?query=${query}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(map(response => this.normalizeArray<Item>(response)));
   }
 
   getLowStock(threshold = 5): Observable<Item[]> {
-    return this.http.get<Item[]>(`${this.apiUrl}/low-stock?threshold=${threshold}`, {
-      headers: this.getHeaders(),
-    });
+    return this.http
+      .get<Item[] | { data: Item[] }>(`${this.apiUrl}/low-stock?threshold=${threshold}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(map(response => this.normalizeArray<Item>(response)));
   }
 
-  // Add inside ItemService class:
   getPriceHistory(itemId: number): Observable<PriceHistory[]> {
-    return this.http.get<PriceHistory[]>(`http://localhost:8080/api/price-history/${itemId}`);
+    return this.http.get<PriceHistory[]>(`http://localhost:8080/api/price-history/${itemId}`, {
+      headers: this.getHeaders(),
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-price-history',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, RouterModule,
     MatIconModule, MatButtonModule,
@@ -47,7 +48,8 @@ export class PriceHistoryComponent implements OnInit {
 
   constructor(
     private itemService: ItemService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -58,9 +60,15 @@ export class PriceHistoryComponent implements OnInit {
   loadHistory(): void {
     this.itemService.getPriceHistory(this.itemId).subscribe({
       next: (data) => {
-        this.history = data;
-        this.buildChart(data);
+        this.history = Array.isArray(data) ? data : [];
+        this.buildChart(this.history);
         this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.history = [];
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

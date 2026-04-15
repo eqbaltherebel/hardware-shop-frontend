@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -18,6 +18,7 @@ import { Location, Category } from '../../models/item.model';
 @Component({
   selector: 'app-item-form',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, RouterModule, ReactiveFormsModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
@@ -44,7 +45,8 @@ export class ItemForm implements OnInit {
     private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -77,8 +79,26 @@ export class ItemForm implements OnInit {
   }
 
   loadDropdowns(): void {
-    this.locationService.getAll().subscribe(locs => this.locations = locs);
-    this.categoryService.getAll().subscribe(cats => this.categories = cats);
+    this.locationService.getAll().subscribe({
+      next: (locs) => {
+        this.locations = Array.isArray(locs) ? locs : [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.locations = [];
+        this.cdr.detectChanges();
+      }
+    });
+    this.categoryService.getAll().subscribe({
+      next: (cats) => {
+        this.categories = Array.isArray(cats) ? cats : [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.categories = [];
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadItem(id: number): void {
@@ -95,10 +115,12 @@ export class ItemForm implements OnInit {
           categoryId:   item.category?.id ?? null
         });
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.snackBar.open('Failed to load item', 'Close', { duration: 3000 });
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

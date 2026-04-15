@@ -9,7 +9,7 @@
       <button
         mat-stroked-button
         color="warn"
-        routerLink="/inventory"
+        routerLink="/items"
         *ngIf="lowStockCount > 0"
         class="low-stock-btn"
       >
@@ -124,7 +124,7 @@
           <button
             mat-icon-button
             color="accent"
-            [routerLink]="['/items/history', item.id]"
+            [routerLink]="['/items/price-history', item.id]"
             matTooltip="Price history"
           >
             <mat-icon>history</mat-icon>

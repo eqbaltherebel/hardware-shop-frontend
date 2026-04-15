@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -17,6 +17,7 @@ import { DeleteConfirmDialogComponent } from './location-delete-dialog';
 @Component({
   selector: 'app-location-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, ReactiveFormsModule,
     MatTableModule, MatButtonModule, MatIconModule,
@@ -35,7 +36,8 @@ export class LocationListComponent implements OnInit {
   constructor(
     private locationService: LocationService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -45,8 +47,16 @@ export class LocationListComponent implements OnInit {
   loadLocations(): void {
     this.isLoading = true;
     this.locationService.getAll().subscribe({
-      next: (data) => { this.locations = data; this.isLoading = false; },
-      error: () => { this.snackBar.open('Failed to load locations', 'Close', { duration: 3000 }); this.isLoading = false; }
+      next: (data) => {
+        this.locations = Array.isArray(data) ? data : [];
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.snackBar.open('Failed to load locations', 'Close', { duration: 3000 });
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

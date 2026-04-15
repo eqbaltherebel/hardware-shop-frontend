@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,14 +13,16 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, of, Subject, timeout } from 'rxjs';
 import { ItemService } from '../../services/item';
 import { Item } from '../../models/item.model';
 import { DeleteConfirmDialogComponent } from './delete-confirm-dialog.component';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-item-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, RouterModule, FormsModule,
     MatTableModule, MatPaginatorModule, MatSortModule,
@@ -46,7 +48,8 @@ export class ItemList implements OnInit {
   constructor(
     private itemService: ItemService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -58,8 +61,16 @@ export class ItemList implements OnInit {
       distinctUntilChanged()
     ).subscribe(query => {
       if (query.trim()) {
-        this.itemService.search(query).subscribe(items => {
-          this.dataSource.data = items;
+        this.itemService.search(query).subscribe({
+          next: (items) => {
+            const normalizedItems = Array.isArray(items) ? items : [];
+            this.dataSource.data = [...normalizedItems];
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.dataSource.data = [];
+            this.cdr.detectChanges();
+          }
         });
       } else {
         this.loadItems();
@@ -74,15 +85,24 @@ export class ItemList implements OnInit {
 
   loadItems(): void {
     this.isLoading = true;
-    this.itemService.getAll().subscribe({
+    this.itemService.getAll().pipe(
+      timeout(10000),
+      catchError(() => {
+        this.snackBar.open('Failed to load items. Please check your server and try again.', 'Close', {
+          duration: 4000
+        });
+        return of([] as Item[]);
+      }),
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (items) => {
-        this.dataSource.data = items;
-        this.lowStockCount = items.filter(i => i.quantity <= 5).length;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.snackBar.open('Failed to load items', 'Close', { duration: 3000 });
-        this.isLoading = false;
+        const normalizedItems = Array.isArray(items) ? items : [];
+        this.dataSource.data = [...normalizedItems]; // Create a new array reference
+        this.lowStockCount = normalizedItems.filter(i => i.quantity <= 5).length;
+        this.cdr.detectChanges();
       }
     });
   }
