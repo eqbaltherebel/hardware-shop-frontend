@@ -1,25 +1,30 @@
 .list-container {
   padding: 24px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
+/* ─── Header ─────────────────────────────────────────────── */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  gap: 12px;
+  flex-wrap: wrap;
 
   .header-left {
     display: flex;
     align-items: baseline;
     gap: 12px;
+    flex-wrap: wrap;
   }
 
   .header-actions {
     display: flex;
     gap: 12px;
     align-items: center;
+    flex-shrink: 0;
   }
 }
 
@@ -36,89 +41,19 @@
   background: #f0f0f0;
   padding: 2px 10px;
   border-radius: 12px;
+  white-space: nowrap;
 }
 
+/* ─── Search ─────────────────────────────────────────────── */
 .search-field {
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
-.table-wrap {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-table {
-  width: 100%;
-}
-
-.item-name {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.item-desc {
-  font-size: 12px;
-  color: #888;
-  margin-top: 2px;
-}
-
-.chip-category {
-  background: #e3f2fd;
-  color: #1565c0;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.chip-location {
-  background: #f3e5f5;
-  color: #6a1b9a;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.qty-low {
-  color: #d32f2f;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.qty-ok {
-  color: #2e7d32;
-  font-weight: 600;
-}
-
-.profit {
-  font-size: 11px;
-  color: #2e7d32;
-}
-
-.no-data { color: #ccc; }
-
-.low-stock-row {
-  background: #fff8f8 !important;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #aaa;
-
-  mat-icon { font-size: 64px; height: 64px; width: 64px; }
-  p { font-size: 18px; margin: 12px 0 24px; }
-}
-
+/* ─── Loading / Empty ────────────────────────────────────── */
 .loading-wrap {
   text-align: center;
-  padding: 60px;
+  padding: 80px 20px;
   color: #888;
   display: flex;
   align-items: center;
@@ -129,4 +64,284 @@ table {
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #aaa;
+
+  mat-icon { font-size: 64px; height: 64px; width: 64px; display: block; margin: 0 auto 12px; }
+  p { font-size: 18px; margin: 0 0 24px; }
+}
+
 .low-stock-btn mat-icon { font-size: 18px; margin-right: 4px; }
+
+/* ─── Card Grid ──────────────────────────────────────────── */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* ─── Item Card ──────────────────────────────────────────── */
+.item-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border: 1px solid #f0f0f0;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  &.card-low-stock {
+    border-color: #ffcdd2;
+  }
+}
+
+/* ─── Card Photo ─────────────────────────────────────────── */
+.card-photo {
+  position: relative;
+  width: 100%;
+  padding-top: 75%;    // 4:3 aspect ratio
+  background: #f8fafc;
+  overflow: hidden;
+
+  .card-img,
+  .card-img-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .card-img {
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover .card-img { transform: scale(1.04); }
+
+  .card-img-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+
+    mat-icon {
+      font-size: 52px;
+      height: 52px;
+      width: 52px;
+      color: #cbd5e1;
+    }
+  }
+
+  .low-stock-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: #ef5350;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    line-height: 1;
+
+    mat-icon { font-size: 12px; height: 12px; width: 12px; }
+  }
+}
+
+/* ─── Card Body ──────────────────────────────────────────── */
+.card-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+}
+
+.card-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a2e;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 22px;
+}
+
+.chip-category {
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chip-location {
+  background: #f3e5f5;
+  color: #6a1b9a;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+
+  mat-icon { font-size: 11px; height: 11px; width: 11px; }
+}
+
+.card-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.sell-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.qty-low {
+  color: #d32f2f;
+  font-weight: 700;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #ffebee;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.qty-ok {
+  color: #2e7d32;
+  font-weight: 600;
+  font-size: 12px;
+  background: #e8f5e9;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.card-sub-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buy-price {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.profit {
+  font-size: 11px;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0;
+  margin-top: auto;
+  padding-top: 4px;
+  border-top: 1px solid #f0f4f8;
+
+  button {
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+
+    mat-icon { font-size: 18px; height: 18px; width: 18px; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+═══════════════════════════════════════════════════════════ */
+
+/* ─── Laptop: ≤ 1200px → 3 columns ──────────────────────── */
+@media (max-width: 1200px) {
+  .items-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ─── Tablet: ≤ 900px → 3 columns, tighter ──────────────── */
+@media (max-width: 900px) {
+  .items-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+}
+
+/* ─── Mobile: ≤ 768px → 2 columns ───────────────────────── */
+@media (max-width: 768px) {
+  .list-container { padding: 16px; }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 16px;
+
+    .header-actions {
+      width: 100%;
+      button { flex: 1; justify-content: center; }
+    }
+  }
+
+  .page-title { font-size: 22px; }
+
+  .items-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .sell-price { font-size: 16px; }
+  .card-body { padding: 10px; gap: 5px; }
+}
+
+/* ─── Small Mobile: ≤ 480px → 2 columns compact ─────────── */
+@media (max-width: 480px) {
+  .list-container { padding: 12px; }
+
+  .items-grid { gap: 10px; }
+
+  .card-name { font-size: 13px; }
+  .sell-price { font-size: 15px; }
+  .card-desc { display: none; }
+  .card-chips { display: none; }      // save vertical space
+  .card-sub-row { display: none; }    // hide buy price & profit on tiny screens
+  .card-body { padding: 8px; gap: 4px; }
+
+  .card-actions {
+    button { width: 30px; height: 30px; }
+    mat-icon { font-size: 16px !important; height: 16px !important; width: 16px !important; }
+  }
+}

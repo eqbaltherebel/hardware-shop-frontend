@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -18,7 +18,6 @@ import { Location, Category } from '../../models/item.model';
 @Component({
   selector: 'app-item-form',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, RouterModule, ReactiveFormsModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
@@ -38,6 +37,12 @@ export class ItemForm implements OnInit {
   isLoading = false;
   isSaving = false;
 
+  // Photo state
+  selectedPhoto: File | null = null;
+  photoPreviewUrl: string | null = null;
+  existingPhotoUrl: string | null = null;
+  removeExistingPhoto = false;
+
   constructor(
     private fb: FormBuilder,
     private itemService: ItemService,
@@ -45,8 +50,7 @@ export class ItemForm implements OnInit {
     private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -71,59 +75,115 @@ export class ItemForm implements OnInit {
       locationId:   [null],
       categoryId:   [null]
     });
-
-    // Auto-validate: selling price must be >= buying price
-    this.form.get('buyingPrice')?.valueChanges.subscribe(() => {
-      this.form.get('sellingPrice')?.updateValueAndValidity();
-    });
   }
 
   loadDropdowns(): void {
     this.locationService.getAll().subscribe({
-      next: (locs) => {
-        this.locations = Array.isArray(locs) ? locs : [];
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.locations = [];
-        this.cdr.detectChanges();
-      }
+      next: locs => this.locations = locs,
+      error: () => this.snackBar.open('Failed to load locations', 'Close',
+        { duration: 3000 })
     });
+
     this.categoryService.getAll().subscribe({
-      next: (cats) => {
-        this.categories = Array.isArray(cats) ? cats : [];
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.categories = [];
-        this.cdr.detectChanges();
-      }
+      next: cats => this.categories = cats,
+      error: () => this.snackBar.open('Failed to load categories', 'Close',
+        { duration: 3000 })
     });
   }
 
   loadItem(id: number): void {
-    this.isLoading = true;
-    this.itemService.getById(id).subscribe({
-      next: (item) => {
-        this.form.patchValue({
-          name:         item.name,
-          description:  item.description,
-          quantity:     item.quantity,
-          buyingPrice:  item.buyingPrice,
-          sellingPrice: item.sellingPrice,
-          locationId:   item.location?.id ?? null,
-          categoryId:   item.category?.id ?? null
-        });
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.snackBar.open('Failed to load item', 'Close', { duration: 3000 });
-        this.isLoading = false;
-        this.cdr.detectChanges();
+
+
+  this.itemService.getById(id).subscribe({
+    next: (item) => {
+      console.log('API response:', item);
+
+     
+
+      if (!item) {
+        throw new Error('Invalid response');
       }
-    });
+
+      this.form.patchValue({
+        name:         item.name,
+        description:  item.description || '',
+        quantity:     item.quantity,
+        buyingPrice:  item.buyingPrice,
+        sellingPrice: item.sellingPrice,
+        locationId:   item.locationId ?? null,
+        categoryId:   item.categoryId ?? null
+      });
+
+      if (item.photoUrl) {
+        this.existingPhotoUrl = item.photoUrl;
+      }
+
+      this.isLoading = false; // ✅ IMPORTANT
+    },
+
+    error: (err) => {
+      console.error(err);
+      this.snackBar.open('Failed to load item', 'Close', { duration: 3000 });
+      this.isLoading = false; // ✅ IMPORTANT
+    }
+  });
+}
+
+  // ── Photo handlers ────────────────────────────────────────
+
+  onPhotoSelected(event: Event | DragEvent): void {
+    let file: File | null = null;
+
+    // Handle both click-to-browse and drag-and-drop
+    if (event instanceof DragEvent) {
+      event.preventDefault();
+      file = event.dataTransfer?.files?.[0] ?? null;
+    } else {
+      const input = event.target as HTMLInputElement;
+      file = input.files?.[0] ?? null;
+    }
+
+    if (!file) return;
+
+    // Validate type
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      this.snackBar.open('Only JPG, PNG or WEBP images allowed',
+        'Close', { duration: 3000 });
+      return;
+    }
+
+    // Validate size — 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      this.snackBar.open('Image must be under 5MB',
+        'Close', { duration: 3000 });
+      return;
+    }
+
+    this.selectedPhoto = file;
+    this.removeExistingPhoto = false;
+
+    // Show local preview immediately — no upload yet
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.photoPreviewUrl = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
+
+  clearSelectedPhoto(): void {
+    this.selectedPhoto = null;
+    this.photoPreviewUrl = null;
+  }
+
+  removePhoto(): void {
+    this.removeExistingPhoto = true;
+    this.existingPhotoUrl = null;
+    this.selectedPhoto = null;
+    this.photoPreviewUrl = null;
+  }
+
+  // ── Submit ────────────────────────────────────────────────
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -134,27 +194,62 @@ export class ItemForm implements OnInit {
     this.isSaving = true;
     const payload = this.form.value;
 
-    const request$ = this.isEditMode
-      ? this.itemService.update(this.editId!, payload)
-      : this.itemService.create(payload);
+    if (this.isEditMode) {
+      this.handleUpdate(payload);
+    } else {
+      this.handleCreate(payload);
+    }
+  }
 
-    request$.subscribe({
+  private handleCreate(payload: any): void {
+    this.itemService.create(payload, this.selectedPhoto).subscribe({
       next: () => {
-        this.snackBar.open(
-          this.isEditMode ? 'Item updated!' : 'Item created!',
-          'Close', { duration: 3000, panelClass: 'snack-success' }
-        );
+        this.snackBar.open('Item created!', 'Close', { duration: 3000 });
         this.router.navigate(['/items']);
       },
-      error: () => {
-        this.snackBar.open('Failed to save item', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(
+          err?.error?.error || 'Failed to create item',
+          'Close', { duration: 3000 });
         this.isSaving = false;
       }
     });
   }
 
-  // Helper getters for template validation messages
-  get nameError() {
+  private handleUpdate(payload: any): void {
+    // Step 1: If user removed existing photo and didn't pick a new one
+    //         → delete photo first, then update item without photo
+    if (this.removeExistingPhoto && !this.selectedPhoto) {
+      this.itemService.deletePhoto(this.editId!).subscribe({
+        next: () => this.saveUpdate(payload),
+        error: () => this.saveUpdate(payload) // still save even if photo delete fails
+      });
+    } else {
+      // Step 2: Update item — include new photo if selected
+      this.saveUpdate(payload);
+    }
+  }
+
+  private saveUpdate(payload: any): void {
+    this.itemService.update(
+      this.editId!, payload, this.selectedPhoto
+    ).subscribe({
+      next: () => {
+        this.snackBar.open('Item updated!', 'Close', { duration: 3000 });
+        this.router.navigate(['/items']);
+      },
+      error: (err) => {
+        this.snackBar.open(
+          err?.error?.error || 'Failed to update item',
+          'Close', { duration: 3000 });
+        this.isSaving = false;
+      }
+    });
+  }
+
+  // ── Getters ───────────────────────────────────────────────
+
+  get nameError(): string {
     const c = this.form.get('name');
     if (c?.hasError('required')) return 'Name is required';
     if (c?.hasError('minlength')) return 'Minimum 2 characters';
@@ -162,8 +257,15 @@ export class ItemForm implements OnInit {
   }
 
   get profitPreview(): number {
-    const buy  = this.form.get('buyingPrice')?.value || 0;
+    const buy  = this.form.get('buyingPrice')?.value  || 0;
     const sell = this.form.get('sellingPrice')?.value || 0;
     return sell - buy;
+  }
+
+  get displayPhotoUrl(): string | null {
+    if (this.photoPreviewUrl) return this.photoPreviewUrl;
+    if (this.existingPhotoUrl && !this.removeExistingPhoto)
+      return this.existingPhotoUrl;
+    return null;
   }
 }

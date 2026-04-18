@@ -1,4 +1,5 @@
 <div class="list-container">
+
   <!-- Header -->
   <div class="page-header">
     <div class="header-left">
@@ -6,13 +7,8 @@
       <span class="item-count">{{ dataSource.data.length }} items</span>
     </div>
     <div class="header-actions">
-      <button
-        mat-stroked-button
-        color="warn"
-        routerLink="/items"
-        *ngIf="lowStockCount > 0"
-        class="low-stock-btn"
-      >
+      <button mat-stroked-button color="warn" routerLink="/items"
+              *ngIf="lowStockCount > 0" class="low-stock-btn">
         <mat-icon>warning</mat-icon>
         {{ lowStockCount }} Low Stock
       </button>
@@ -22,17 +18,14 @@
     </div>
   </div>
 
-  <!-- Search Bar -->
+  <!-- Search -->
   <mat-form-field appearance="outline" class="search-field">
     <mat-label>Search items by name or description...</mat-label>
     <mat-icon matPrefix>search</mat-icon>
-    <input
-      matInput
-      [(ngModel)]="searchQuery"
-      (input)="onSearch(searchQuery)"
-      placeholder="e.g. bolt, hammer, pipe"
-    />
-    <button *ngIf="searchQuery" matSuffix mat-icon-button (click)="searchQuery = ''; loadItems()">
+    <input matInput [(ngModel)]="searchQuery" (input)="onSearch(searchQuery)"
+           placeholder="e.g. bolt, hammer, pipe" />
+    <button *ngIf="searchQuery" matSuffix mat-icon-button
+            (click)="searchQuery = ''; loadItems()">
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
@@ -42,111 +35,88 @@
     <mat-icon class="spin">autorenew</mat-icon> Loading...
   </div>
 
-  <!-- Table -->
-  <div class="table-wrap mat-elevation-z2" *ngIf="!isLoading">
-    <table mat-table [dataSource]="dataSource" matSort>
-      <!-- Name -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Item Name</th>
-        <td mat-cell *matCellDef="let item">
-          <div class="item-name">{{ item.name }}</div>
-          <div class="item-desc" *ngIf="item.description">{{ item.description }}</div>
-        </td>
-      </ng-container>
+  <!-- Card Grid + Paginator -->
+  <div *ngIf="!isLoading">
 
-      <!-- Category -->
-      <ng-container matColumnDef="category">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
-        <td mat-cell *matCellDef="let item">
-          <span class="chip-category" *ngIf="item.categoryName">{{ item.categoryName }}</span>
-          <span class="no-data" *ngIf="!item.categoryName">—</span>
-        </td>
-      </ng-container>
+    <ng-container *ngIf="pagedItems$ | async as pagedItems">
 
-      <!-- Location -->
-      <ng-container matColumnDef="location">
-        <th mat-header-cell *matHeaderCellDef>Location</th>
-        <td mat-cell *matCellDef="let item">
-          <span class="chip-location" *ngIf="item.locationDisplay">
-            <mat-icon style="font-size: 14px; height: 14px; width: 14px">place</mat-icon>
-            {{ item.locationDisplay }}
-          </span>
-          <span class="no-data" *ngIf="!item.locationDisplay">—</span>
-        </td>
-      </ng-container>
+      <!-- Items Grid -->
+      <div class="items-grid" *ngIf="pagedItems.length > 0">
+        <div class="item-card"
+             *ngFor="let item of pagedItems"
+             [class.card-low-stock]="isLowStock(item.quantity)">
 
-      <!-- Quantity -->
-      <ng-container matColumnDef="quantity">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Qty</th>
-        <td mat-cell *matCellDef="let item">
-          <span [class]="isLowStock(item.quantity) ? 'qty-low' : 'qty-ok'">
-            {{ item.quantity }}
-            <mat-icon
-              *ngIf="isLowStock(item.quantity)"
-              matTooltip="Low stock!"
-              style="font-size: 14px"
-              >warning</mat-icon
-            >
-          </span>
-        </td>
-      </ng-container>
+          <!-- Photo -->
+          <div class="card-photo">
+            <img *ngIf="item.photoUrl" [src]="item.photoUrl"
+                 [alt]="item.name" class="card-img" />
+            <div class="card-img-placeholder" *ngIf="!item.photoUrl">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+            <span class="low-stock-badge" *ngIf="isLowStock(item.quantity)">
+              <mat-icon>warning</mat-icon> Low
+            </span>
+          </div>
 
-      <!-- Buying Price -->
-      <ng-container matColumnDef="buyingPrice">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Buy (₹)</th>
-        <td mat-cell *matCellDef="let item">₹{{ item.buyingPrice | number: '1.2-2' }}</td>
-      </ng-container>
+          <!-- Body -->
+          <div class="card-body">
+            <div class="card-name">{{ item.name }}</div>
+            <div class="card-desc" *ngIf="item.description">{{ item.description }}</div>
 
-      <!-- Selling Price -->
-      <ng-container matColumnDef="sellingPrice">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Sell (₹)</th>
-        <td mat-cell *matCellDef="let item">
-          <div>₹{{ item.sellingPrice | number: '1.2-2' }}</div>
-          <div class="profit">+₹{{ getProfit(item) | number: '1.2-2' }} profit</div>
-        </td>
-      </ng-container>
+            <div class="card-chips">
+              <span class="chip-category" *ngIf="item.categoryName">
+                {{ item.categoryName }}
+              </span>
+              <span class="chip-location" *ngIf="item.locationDisplay">
+                <mat-icon>place</mat-icon>{{ item.locationDisplay }}
+              </span>
+            </div>
 
-      <!-- Actions -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let item">
-          <button
-            mat-icon-button
-            color="primary"
-            [routerLink]="['/items/edit', item.id]"
-            matTooltip="Edit item"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="onDelete(item)" matTooltip="Delete item">
-            <mat-icon>delete</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            color="accent"
-            [routerLink]="['/items/price-history', item.id]"
-            matTooltip="Price history"
-          >
-            <mat-icon>history</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+            <div class="card-price-row">
+              <div class="sell-price">₹{{ item.sellingPrice | number:'1.0-0' }}</div>
+              <span [class]="isLowStock(item.quantity) ? 'qty-low' : 'qty-ok'">
+                Qty: {{ item.quantity }}
+              </span>
+            </div>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        [class.low-stock-row]="isLowStock(row.quantity)"
-      ></tr>
-    </table>
+            <div class="card-sub-row">
+              <span class="buy-price">Buy: ₹{{ item.buyingPrice | number:'1.0-0' }}</span>
+              <span class="profit">+₹{{ getProfit(item) | number:'1.0-0' }}</span>
+            </div>
 
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="dataSource.data.length === 0">
-      <mat-icon>inventory_2</mat-icon>
-      <p>No items found</p>
-      <button mat-raised-button color="primary" routerLink="/items/new">Add First Item</button>
-    </div>
+            <div class="card-actions">
+              <button mat-icon-button color="primary"
+                      [routerLink]="['/items/edit', item.id]"
+                      matTooltip="Edit item">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn"
+                      (click)="onDelete(item)"
+                      matTooltip="Delete item">
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button mat-icon-button color="accent"
+                      [routerLink]="['/items/price-history', item.id]"
+                      matTooltip="Price history">
+                <mat-icon>history</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="pagedItems.length === 0">
+        <mat-icon>inventory_2</mat-icon>
+        <p>No items found</p>
+        <button mat-raised-button color="primary" routerLink="/items/new">
+          Add First Item
+        </button>
+      </div>
+
+    </ng-container>
+
+    <mat-paginator [pageSizeOptions]="[12, 24, 48]" showFirstLastButtons></mat-paginator>
   </div>
+
 </div>

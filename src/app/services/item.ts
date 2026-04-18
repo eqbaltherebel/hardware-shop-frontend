@@ -41,16 +41,22 @@ export class ItemService {
     return this.http.get<Item>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  create(item: ItemRequest): Observable<Item> {
-    return this.http.post<Item>(this.apiUrl, item, { headers: this.getHeaders() });
+  create(item: ItemRequest, photo?: File | null): Observable<Item> {
+    const formData = this.buildFormData(item, photo);
+    return this.http.post<Item>(this.apiUrl, formData, { headers: this.getHeaders() });
   }
 
-  update(id: number, item: ItemRequest): Observable<Item> {
-    return this.http.put<Item>(`${this.apiUrl}/${id}`, item, { headers: this.getHeaders() });
+  update(id: number, item: ItemRequest, photo?: File | null): Observable<Item>  {
+    const formData = this.buildFormData(item, photo);
+    return this.http.put<Item>(`${this.apiUrl}/${id}`, formData, { headers: this.getHeaders() });
   }
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  deletePhoto(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}/photo`);
   }
 
   search(query: string): Observable<Item[]> {
@@ -73,5 +79,23 @@ export class ItemService {
     return this.http.get<PriceHistory[]>(`http://localhost:8080/api/price-history/${itemId}`, {
       headers: this.getHeaders(),
     });
+  }
+
+  // ── Helpers ──────────────────────────────────────────────
+
+  private buildFormData(item: ItemRequest, photo?: File | null): FormData {
+    const formData = new FormData();
+
+    // Attach item as JSON blob
+    formData.append('item',
+      new Blob([JSON.stringify(item)], { type: 'application/json' })
+    );
+
+    // Attach photo if provided
+    if (photo) {
+      formData.append('photo', photo, photo.name);
+    }
+
+    return formData;
   }
 }

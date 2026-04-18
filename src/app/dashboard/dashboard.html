@@ -60,13 +60,16 @@
     </div>
   </div>
 
-  <!-- Low Stock Table -->
-  <div class="low-stock-card" *ngIf="lowStockItems.length > 0">
-    <div class="card-header">
-      <mat-icon color="warn">warning</mat-icon>
-      <h2>Low Stock Items</h2>
-      <button mat-stroked-button routerLink="/items">View All</button>
-    </div>
+ <!-- Low Stock Table -->
+<div class="low-stock-card" *ngIf="lowStockItems.length > 0">
+  <div class="card-header">
+    <mat-icon color="warn">warning</mat-icon>
+    <h2>Low Stock Items</h2>
+    <button mat-stroked-button routerLink="/items">View All</button>
+  </div>
+
+  <!-- ADD this wrapper div -->
+  <div class="table-wrapper">
     <table mat-table [dataSource]="lowStockItems">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Item</th>
@@ -86,5 +89,6 @@
       <tr mat-row *matRowDef="let row; columns: lowStockColumns;"></tr>
     </table>
   </div>
+</div>
 
 </div>

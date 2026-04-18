@@ -23,6 +23,10 @@ export interface Item {
   locationDisplay?: string;
   categoryName?: string;
   category?: Category;
+  photoUrl?: string;       // direct Cloudinary HTTPS URL
+  photoPublicId?: string;  // for reference  
+  locationId?: number;      // ← ADD      
+  categoryId?: number;      // ← ADD
   createdAt?: string;
   updatedAt?: string;
 }

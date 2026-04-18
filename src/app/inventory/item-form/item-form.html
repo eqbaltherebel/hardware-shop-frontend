@@ -1,88 +1,120 @@
 <div class="form-container">
 
+  <!-- Page Header -->
   <div class="form-header">
-    <button mat-icon-button routerLink="/items" class="back-btn">
+    <button mat-icon-button routerLink="/items" class="back-btn" matTooltip="Back to Inventory">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div>
+    <div class="header-text">
       <h1>{{ isEditMode ? 'Edit Item' : 'Add New Item' }}</h1>
-      <p class="subtitle">{{ isEditMode ? 'Update the item details below' : 'Fill in the details to add a new inventory item' }}</p>
+      <p class="subtitle">
+        {{ isEditMode ? 'Update the item details below' : 'Fill in the details to add a new inventory item' }}
+      </p>
     </div>
   </div>
 
+  <!-- Loading -->
   <div class="loading-wrap" *ngIf="isLoading">
-    <mat-spinner diameter="40"></mat-spinner>
+    <mat-spinner diameter="44"></mat-spinner>
+    <span>Loading item…</span>
   </div>
 
+  <!-- Form -->
   <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+
+    <!-- ── Basic Information ───────────────────────────────── -->
     <div class="form-card">
-
-      <!-- Section: Basic Info -->
       <div class="section-title">
-        <mat-icon>info</mat-icon> Basic Information
+        <span class="section-icon blue"><mat-icon>info</mat-icon></span>
+        <div>
+          <div class="section-label">Basic Information</div>
+          <div class="section-hint">Name, description and stock quantity</div>
+        </div>
       </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Item Name *</mat-label>
-        <input matInput formControlName="name" placeholder="e.g. Steel Bolt M8">
-        <mat-error>{{ nameError }}</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea matInput formControlName="description"
-                  placeholder="Optional description..."
-                  rows="3"></textarea>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Quantity *</mat-label>
-        <input matInput type="number" formControlName="quantity" min="0">
-        <mat-hint>Current stock count</mat-hint>
-        <mat-error *ngIf="form.get('quantity')?.hasError('required')">Required</mat-error>
-        <mat-error *ngIf="form.get('quantity')?.hasError('min')">Cannot be negative</mat-error>
-      </mat-form-field>
-
-      <mat-divider class="divider"></mat-divider>
-
-      <!-- Section: Pricing -->
-      <div class="section-title">
-        <mat-icon>payments</mat-icon> Pricing
-      </div>
-
-      <div class="row-fields">
-        <mat-form-field appearance="outline">
-          <mat-label>Buying Price (₹) *</mat-label>
-          <span matPrefix>₹&nbsp;</span>
-          <input matInput type="number" formControlName="buyingPrice" min="0" step="0.01">
-          <mat-error *ngIf="form.get('buyingPrice')?.hasError('required')">Required</mat-error>
-          <mat-error *ngIf="form.get('buyingPrice')?.hasError('min')">Cannot be negative</mat-error>
+      <div class="fields-grid">
+        <mat-form-field appearance="outline" class="col-full">
+          <mat-label>Item Name *</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">label</mat-icon>
+          <input matInput formControlName="name" placeholder="e.g. Steel Bolt M8" />
+          <mat-error>{{ nameError }}</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="col-full">
+          <mat-label>Description</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">notes</mat-icon>
+          <textarea matInput formControlName="description"
+                    placeholder="Optional description..." rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-half">
+          <mat-label>Quantity *</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">inventory_2</mat-icon>
+          <input matInput type="number" formControlName="quantity" min="0" />
+          <mat-hint>Current stock count</mat-hint>
+          <mat-error *ngIf="form.get('quantity')?.hasError('required')">Required</mat-error>
+          <mat-error *ngIf="form.get('quantity')?.hasError('min')">Cannot be negative</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- ── Pricing ─────────────────────────────────────────── -->
+    <div class="form-card">
+      <div class="section-title">
+        <span class="section-icon green"><mat-icon>payments</mat-icon></span>
+        <div>
+          <div class="section-label">Pricing</div>
+          <div class="section-hint">Buying, selling price and profit margin</div>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <mat-form-field appearance="outline" class="col-half">
+          <mat-label>Buying Price (₹) *</mat-label>
+          <span matPrefix class="rupee-prefix">₹&nbsp;</span>
+          <input matInput type="number" formControlName="buyingPrice" min="0" step="0.01" />
+          <mat-error *ngIf="form.get('buyingPrice')?.hasError('required')">Required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-half">
           <mat-label>Selling Price (₹) *</mat-label>
-          <span matPrefix>₹&nbsp;</span>
-          <input matInput type="number" formControlName="sellingPrice" min="0" step="0.01">
+          <span matPrefix class="rupee-prefix">₹&nbsp;</span>
+          <input matInput type="number" formControlName="sellingPrice" min="0" step="0.01" />
           <mat-error *ngIf="form.get('sellingPrice')?.hasError('required')">Required</mat-error>
         </mat-form-field>
       </div>
 
       <!-- Profit Preview -->
-      <div class="profit-preview" [class.profit-neg]="profitPreview < 0" *ngIf="form.get('buyingPrice')?.value || form.get('sellingPrice')?.value">
-        <mat-icon>{{ profitPreview >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-        <span>Profit per unit: <strong>₹{{ profitPreview | number:'1.2-2' }}</strong></span>
+      <div class="profit-preview"
+           [class.profit-neg]="profitPreview < 0"
+           *ngIf="form.get('buyingPrice')?.value || form.get('sellingPrice')?.value">
+        <div class="profit-icon">
+          <mat-icon>{{ profitPreview >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+        </div>
+        <div class="profit-text">
+          <span class="profit-label">Profit per unit</span>
+          <span class="profit-value">₹{{ profitPreview | number:'1.2-2' }}</span>
+        </div>
+        <div class="profit-margin" *ngIf="form.get('buyingPrice')?.value > 0">
+          {{ ((profitPreview / form.get('buyingPrice')?.value) * 100) | number:'1.0-1' }}% margin
+        </div>
       </div>
+    </div>
 
-      <mat-divider class="divider"></mat-divider>
-
-      <!-- Section: Classification -->
+    <!-- ── Classification ─────────────────────────────────── -->
+    <div class="form-card">
       <div class="section-title">
-        <mat-icon>category</mat-icon> Classification
+        <span class="section-icon purple"><mat-icon>category</mat-icon></span>
+        <div>
+          <div class="section-label">Classification</div>
+          <div class="section-hint">Organise by category and storage location</div>
+        </div>
       </div>
 
-      <div class="row-fields">
-        <mat-form-field appearance="outline">
+      <div class="fields-grid">
+        <mat-form-field appearance="outline" class="col-half">
           <mat-label>Category</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">sell</mat-icon>
           <mat-select formControlName="categoryId">
             <mat-option [value]="null">— None —</mat-option>
             <mat-option *ngFor="let cat of categories" [value]="cat.id">
@@ -91,26 +123,76 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="col-half">
           <mat-label>Storage Location</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">place</mat-icon>
           <mat-select formControlName="locationId">
             <mat-option [value]="null">— None —</mat-option>
             <mat-option *ngFor="let loc of locations" [value]="loc.id">
-              {{ loc.display || ('Aisle ' + loc.aisle + ' · Rack ' + loc.rack + ' · ' + loc.shelf) }}
+              {{ loc.display || 'Aisle ' + loc.aisle + ' · Rack ' + loc.rack + ' · ' + loc.shelf }}
             </mat-option>
           </mat-select>
-          <mat-hint>Where this item is stored in the shop</mat-hint>
         </mat-form-field>
       </div>
-
     </div>
 
-    <!-- Form Actions -->
+    <!-- ── Photo Upload ────────────────────────────────────── -->
+    <div class="form-card">
+      <div class="section-title">
+        <span class="section-icon orange"><mat-icon>photo_camera</mat-icon></span>
+        <div>
+          <div class="section-label">Item Photo</div>
+          <div class="section-hint">JPG, PNG or WEBP · Max 5MB</div>
+        </div>
+      </div>
+
+      <div class="photo-section">
+
+        <!-- Preview -->
+        <div class="photo-preview-wrap">
+          <img *ngIf="displayPhotoUrl" [src]="displayPhotoUrl"
+               alt="Item photo" class="photo-preview" />
+          <div class="photo-placeholder" *ngIf="!displayPhotoUrl">
+            <mat-icon>image</mat-icon>
+            <span>No photo</span>
+          </div>
+          <button mat-mini-fab color="warn" class="remove-photo-btn"
+                  type="button" *ngIf="displayPhotoUrl"
+                  (click)="selectedPhoto ? clearSelectedPhoto() : removePhoto()"
+                  matTooltip="Remove photo">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Upload Area -->
+        <div class="upload-area"
+             (click)="photoInput.click()"
+             (dragover)="$event.preventDefault()"
+             (dragleave)="$event.preventDefault()"
+             (drop)="onPhotoSelected($event)">
+          <div class="upload-icon-wrap">
+            <mat-icon>cloud_upload</mat-icon>
+          </div>
+          <p class="upload-title">
+            {{ displayPhotoUrl ? 'Replace photo' : 'Upload photo' }}
+          </p>
+          <p class="upload-hint">Click to browse or drag & drop</p>
+          <p class="upload-formats">JPG · PNG · WEBP · Max 5MB</p>
+          <input #photoInput type="file"
+                 accept="image/jpeg,image/jpg,image/png,image/webp"
+                 style="display: none"
+                 (change)="onPhotoSelected($event)" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Form Actions ────────────────────────────────────── -->
     <div class="form-actions">
-      <button mat-stroked-button type="button" routerLink="/items">
-        Cancel
+      <button mat-stroked-button type="button" routerLink="/items" class="cancel-btn">
+        <mat-icon>close</mat-icon> Cancel
       </button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving">
+      <button mat-raised-button color="primary" type="submit"
+              [disabled]="isSaving" class="submit-btn">
         <mat-spinner *ngIf="isSaving" diameter="18" class="inline-spinner"></mat-spinner>
         <mat-icon *ngIf="!isSaving">{{ isEditMode ? 'save' : 'add_circle' }}</mat-icon>
         {{ isEditMode ? 'Update Item' : 'Create Item' }}
