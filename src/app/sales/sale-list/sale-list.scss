@@ -1,0 +1,115 @@
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+
+  h1 { margin: 0; font-size: 28px; font-weight: 700; }
+  .subtitle { color: #888; font-size: 14px; margin: 4px 0 0; }
+  .header-actions { display: flex; gap: 12px; }
+}
+
+.today-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+
+  @media(max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.stat-card {
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #fff;
+
+  mat-icon { font-size: 32px; height: 32px; width: 32px; opacity: 0.9; }
+  .stat-value { font-size: 22px; font-weight: 700; }
+  .stat-label { font-size: 12px; opacity: 0.85; }
+
+  &.blue   { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+  &.green  { background: linear-gradient(135deg, #15803d, #22c55e); }
+  &.red    { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+  &.purple { background: linear-gradient(135deg, #6d28d9, #a78bfa); }
+}
+
+.table-wrap {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table { width: 100%; }
+
+.invoice-badge {
+  font-family: monospace;
+  background: #f1f5f9;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.customer-name { font-weight: 600; font-size: 13px; }
+.customer-phone { font-size: 11px; color: #94a3b8; }
+
+.item-count-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.profit-pos { color: #16a34a; font-weight: 700; }
+.profit-neg { color: #dc2626; font-weight: 700; }
+
+.payment-badge {
+  background: #fef9c3;
+  color: #854d0e;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &.status-completed  { background: #dcfce7; color: #15803d; }
+  &.status-cancelled  { background: #fee2e2; color: #b91c1c; }
+  &.status-refunded   { background: #fef9c3; color: #854d0e; }
+}
+
+.cancelled-row { opacity: 0.5; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  color: #aaa;
+  mat-icon { font-size: 64px; height: 64px; width: 64px; }
+  p { font-size: 18px; margin: 12px 0 24px; }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  gap: 8px;
+  color: #888;
+}
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }

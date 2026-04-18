@@ -1,0 +1,225 @@
+<div class="sale-container">
+
+  <div class="page-header">
+    <button mat-icon-button routerLink="/sales">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>New Sale</h1>
+      <p class="subtitle">Search and add items to complete a sale</p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="sale-layout">
+
+      <!-- LEFT: Item search + cart -->
+      <div class="cart-panel">
+
+        <!-- Item Search -->
+        <div class="search-card">
+          <div class="section-title">
+            <mat-icon>search</mat-icon> Search Items
+          </div>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Search by item name...</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [(ngModel)]="searchQuery"
+                   [ngModelOptions]="{standalone: true}"
+                   (input)="onSearch(searchQuery)"
+                   placeholder="e.g. bolt, hammer">
+          </mat-form-field>
+
+          <!-- Search Results -->
+          <div class="item-results" *ngIf="searchQuery.length > 0">
+            <div class="item-result-row"
+                 *ngFor="let item of filteredItems"
+                 (click)="addItem(item)">
+              <img *ngIf="item.photoUrl" [src]="item.photoUrl"
+                   class="result-thumb" alt="">
+              <div class="result-placeholder" *ngIf="!item.photoUrl">
+                <mat-icon>inventory_2</mat-icon>
+              </div>
+              <div class="result-info">
+                <div class="result-name">{{ item.name }}</div>
+                <div class="result-meta">
+                  ₹{{ item.sellingPrice }} · Stock: {{ item.quantity }}
+                </div>
+              </div>
+              <button mat-icon-button color="primary" type="button">
+                <mat-icon>add_circle</mat-icon>
+              </button>
+            </div>
+            <div class="no-results"
+                 *ngIf="filteredItems.length === 0">
+              No items found
+            </div>
+          </div>
+        </div>
+
+        <!-- Cart -->
+        <div class="cart-card">
+          <div class="section-title">
+            <mat-icon>shopping_cart</mat-icon>
+            Cart
+            <span class="cart-count">
+              {{ itemsArray.length }} item(s)
+            </span>
+          </div>
+
+          <!-- Empty cart -->
+          <div class="empty-cart"
+               *ngIf="itemsArray.length === 0">
+            <mat-icon>shopping_cart</mat-icon>
+            <p>Search and add items above</p>
+          </div>
+
+          <!-- Cart rows -->
+          <div class="cart-item"
+               *ngFor="let ctrl of itemsArray.controls; let i = index">
+            <img *ngIf="ctrl.get('itemPhotoUrl')?.value"
+                 [src]="ctrl.get('itemPhotoUrl')?.value"
+                 class="cart-thumb" alt="">
+            <div class="cart-placeholder"
+                 *ngIf="!ctrl.get('itemPhotoUrl')?.value">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+
+            <div class="cart-info">
+              <div class="cart-name">
+                {{ ctrl.get('itemName')?.value }}
+              </div>
+              <div class="cart-price">
+                ₹{{ ctrl.get('sellingPrice')?.value }}
+                × {{ ctrl.get('quantity')?.value }}
+                = <strong>
+                  ₹{{ (ctrl.get('sellingPrice')?.value *
+                       ctrl.get('quantity')?.value) | number:'1.2-2' }}
+                  </strong>
+              </div>
+            </div>
+
+            <!-- Qty controls -->
+            <div class="qty-controls">
+              <button mat-icon-button type="button"
+                      (click)="updateQty(i, -1)">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <span class="qty-value">
+                {{ ctrl.get('quantity')?.value }}
+              </span>
+              <button mat-icon-button type="button"
+                      (click)="updateQty(i, 1)">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+
+            <button mat-icon-button color="warn" type="button"
+                    (click)="removeItem(i)"
+                    class="remove-btn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Customer info + payment + summary -->
+      <div class="summary-panel">
+
+        <!-- Customer Info -->
+        <div class="summary-card">
+          <div class="section-title">
+            <mat-icon>person</mat-icon> Customer (Optional)
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Customer Name</mat-label>
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput formControlName="customerName"
+                   placeholder="Walk-in customer">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Phone Number</mat-label>
+            <mat-icon matPrefix>phone</mat-icon>
+            <input matInput formControlName="customerPhone"
+                   placeholder="10-digit number">
+          </mat-form-field>
+        </div>
+
+        <!-- Payment -->
+        <div class="summary-card">
+          <div class="section-title">
+            <mat-icon>payments</mat-icon> Payment
+          </div>
+
+          <div class="payment-options">
+            <div class="pay-option"
+                 *ngFor="let method of ['CASH','UPI','CARD']"
+                 [class.selected]="form.get('paymentMethod')?.value === method"
+                 (click)="form.get('paymentMethod')?.setValue(method)">
+              <mat-icon>
+                {{ method === 'CASH' ? 'payments'
+                 : method === 'UPI'  ? 'qr_code'
+                 : 'credit_card' }}
+              </mat-icon>
+              <span>{{ method }}</span>
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width"
+                          style="margin-top:16px">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes"
+                      placeholder="Any remarks..." rows="2">
+            </textarea>
+          </mat-form-field>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="summary-card total-card">
+          <div class="section-title">
+            <mat-icon>receipt</mat-icon> Order Summary
+          </div>
+
+          <div class="summary-row">
+            <span>Items</span>
+            <span>{{ itemsArray.length }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Total Amount</span>
+            <span class="amount">
+              ₹{{ totalAmount | number:'1.2-2' }}
+            </span>
+          </div>
+          <div class="summary-row profit-row">
+            <span>Est. Profit</span>
+            <span [class]="totalProfit >= 0
+                            ? 'profit-pos' : 'profit-neg'">
+              ₹{{ totalProfit | number:'1.2-2' }}
+            </span>
+          </div>
+
+          <mat-divider style="margin: 16px 0"></mat-divider>
+
+          <button mat-raised-button color="primary"
+                  type="submit"
+                  class="sell-btn"
+                  [disabled]="isSaving || itemsArray.length === 0">
+            <mat-spinner *ngIf="isSaving" diameter="20"></mat-spinner>
+            <mat-icon *ngIf="!isSaving">point_of_sale</mat-icon>
+            {{ isSaving ? 'Processing...' : 'Complete Sale' }}
+          </button>
+
+          <button mat-stroked-button type="button"
+                  routerLink="/sales"
+                  class="cancel-btn">
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</div>
