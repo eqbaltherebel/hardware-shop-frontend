@@ -71,7 +71,7 @@ export class SaleReport implements OnInit {
   }
 
   loadToday(): void {
-    this.isLoading = true;
+    this.isLoading = false;
     this.saleService.getTodayReport().subscribe({
       next: (r) => { this.report = r; this.buildCharts(r);
                      this.isLoading = false; },
@@ -82,7 +82,7 @@ export class SaleReport implements OnInit {
   loadCustom(): void {
     const from = this.formatDate(this.fromDate);
     const to   = this.formatDate(this.toDate);
-    this.isLoading = true;
+    this.isLoading = false;
     this.saleService.getReport(from, to).subscribe({
       next: (r) => { this.report = r; this.buildCharts(r);
                      this.isLoading = false; },

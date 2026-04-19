@@ -1,5 +1,6 @@
 <div class="page-container">
 
+  <!-- Header -->
   <div class="page-header">
     <div>
       <h1>Sales</h1>
@@ -7,22 +8,22 @@
     </div>
     <div class="header-actions">
       <button mat-stroked-button routerLink="/sales/report">
-        <mat-icon>bar_chart</mat-icon> Reports
+        <mat-icon>bar_chart</mat-icon>
+        <span class="btn-label">Reports</span>
       </button>
       <button mat-raised-button color="primary" routerLink="/sales/new">
-        <mat-icon>add</mat-icon> New Sale
+        <mat-icon>add</mat-icon>
+        <span class="btn-label">New Sale</span>
       </button>
     </div>
   </div>
 
-  <!-- Today stat cards -->
+  <!-- Stat Cards -->
   <div class="today-stats">
     <div class="stat-card blue">
       <mat-icon>today</mat-icon>
       <div>
-        <div class="stat-value">
-          ₹{{ todayRevenue | number:'1.0-0' }}
-        </div>
+        <div class="stat-value">₹{{ todayRevenue | number:'1.0-0' }}</div>
         <div class="stat-label">Today's Revenue</div>
       </div>
     </div>
@@ -31,9 +32,7 @@
          [class.red]="todayProfit < 0">
       <mat-icon>trending_up</mat-icon>
       <div>
-        <div class="stat-value">
-          ₹{{ todayProfit | number:'1.0-0' }}
-        </div>
+        <div class="stat-value">₹{{ todayProfit | number:'1.0-0' }}</div>
         <div class="stat-label">Today's Profit</div>
       </div>
     </div>
@@ -52,7 +51,7 @@
   </div>
 
   <!-- Table -->
-  <div class="table-wrap mat-elevation-z2" *ngIf="!isLoading">
+  <div class="table-wrap mat-elevation-z2">
     <table mat-table [dataSource]="sales">
 
       <ng-container matColumnDef="invoice">
@@ -65,21 +64,15 @@
       <ng-container matColumnDef="customer">
         <th mat-header-cell *matHeaderCellDef>Customer</th>
         <td mat-cell *matCellDef="let s">
-          <div class="customer-name">
-            {{ s.customerName || 'Walk-in' }}
-          </div>
-          <div class="customer-phone" *ngIf="s.customerPhone">
-            {{ s.customerPhone }}
-          </div>
+          <div class="customer-name">{{ s.customerName || 'Walk-in' }}</div>
+          <div class="customer-phone" *ngIf="s.customerPhone">{{ s.customerPhone }}</div>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="items">
         <th mat-header-cell *matHeaderCellDef>Items</th>
         <td mat-cell *matCellDef="let s">
-          <span class="item-count-badge">
-            {{ s.saleItems?.length }} item(s)
-          </span>
+          <span class="item-count-badge">{{ s.saleItems?.length }} item(s)</span>
         </td>
       </ng-container>
 
@@ -93,7 +86,7 @@
       <ng-container matColumnDef="profit">
         <th mat-header-cell *matHeaderCellDef>Profit</th>
         <td mat-cell *matCellDef="let s">
-          <span [class]="s.profit >= 0 ? 'profit-pos' : 'profit-neg'">
+          <span [class]="(s.profit ?? 0) >= 0 ? 'profit-pos' : 'profit-neg'">
             ₹{{ s.profit | number:'1.2-2' }}
           </span>
         </td>
@@ -109,7 +102,7 @@
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let s">
-          <span [class]="'status-badge status-' + s.status.toLowerCase()">
+          <span [class]="'status-badge status-' + (s.status?.toLowerCase() || '')">
             {{ s.status }}
           </span>
         </td>
@@ -118,7 +111,8 @@
       <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef>Date</th>
         <td mat-cell *matCellDef="let s">
-          {{ s.saleDate | date:'dd MMM yyyy, hh:mm a' }}
+          <span class="date-full">{{ s.saleDate | date:'dd MMM yyyy, hh:mm a' }}</span>
+          <span class="date-short">{{ s.saleDate | date:'dd MMM yy' }}</span>
         </td>
       </ng-container>
 
@@ -139,13 +133,13 @@
           [class.cancelled-row]="row.status === 'CANCELLED'"></tr>
     </table>
 
-    <div class="empty-state" *ngIf="sales.length === 0">
+    <div class="empty-state" *ngIf="sales.length === 0 && !isLoading">
       <mat-icon>point_of_sale</mat-icon>
       <p>No sales yet</p>
-      <button mat-raised-button color="primary"
-              routerLink="/sales/new">
+      <button mat-raised-button color="primary" routerLink="/sales/new">
         Make First Sale
       </button>
     </div>
   </div>
+
 </div>

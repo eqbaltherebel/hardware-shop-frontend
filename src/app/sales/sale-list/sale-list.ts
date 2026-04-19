@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
@@ -26,7 +26,7 @@ import { SaleResponse } from '../../models/sale.model';
 export class SaleList implements OnInit {
 
   sales: SaleResponse[] = [];
-  isLoading = true;
+  isLoading = false;
   displayedColumns = [
     'invoice', 'customer', 'items',
     'total', 'profit', 'payment',
@@ -35,7 +35,8 @@ export class SaleList implements OnInit {
 
   constructor(
     private saleService: SaleService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -43,16 +44,25 @@ export class SaleList implements OnInit {
   }
 
   loadSales(): void {
-    
-    this.saleService.getAll().subscribe({
-      next: (data) => { this.sales = data; this.isLoading = false; },
-      error: () => {
-        this.snackBar.open('Failed to load sales', 'Close',
-          { duration: 3000 });
-        this.isLoading = false;
-      }
-    });
-  }
+  this.saleService.getAll().subscribe({
+    next: (res: any) => {
+      console.log('API Response:', res);
+
+      this.sales = Array.isArray(res)
+        ? res
+        : res?.data ?? [];
+
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.snackBar.open('Failed to load sales', 'Close', {
+        duration: 3000
+      });
+      this.isLoading = false;
+    }
+  });
+}
 
   cancelSale(sale: SaleResponse): void {
     if (!confirm(`Cancel sale ${sale.invoiceNumber}? Stock will be restored.`))
