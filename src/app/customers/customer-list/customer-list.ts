@@ -17,7 +17,7 @@ import { CustomerFormDialog } from './customer-form-dialog';
 
 @Component({
   selector: 'app-customer-list',
-  standalone: true,
+  standalone: true, 
   imports: [
     CommonModule, RouterModule, FormsModule,
     MatFormFieldModule, MatInputModule,
@@ -68,7 +68,16 @@ export class CustomerList implements OnInit {
   loadAll(): void {
     this.isLoading = false;
     this.customerService.getAll().subscribe({
-      next: c => { this.customers = c; this.isLoading = false; },
+      next: c => 
+        { 
+          console.log('API Response:', c);
+          this.customers = c; 
+          console.log('Customers Loaded:', this.customers);
+          console.log('First Customer:', this.customers[0]);
+          this.isLoading = false; 
+          this.cdr.detectChanges();
+
+        },
       error: () => {
         this.snackBar.open('Failed to load customers',
           'Close', { duration: 3000 });

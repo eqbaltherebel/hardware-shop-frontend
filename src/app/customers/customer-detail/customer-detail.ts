@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +28,7 @@ import { SaleResponse } from '../../models/sale.model';
 export class CustomerDetail implements OnInit {
 
   customer: Customer | null = null;
-  isLoading = true;
+  isLoading = false; 
 
   saleColumns = [
     'invoice', 'date', 'items',
@@ -39,7 +39,8 @@ export class CustomerDetail implements OnInit {
     private customerService: CustomerService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -48,13 +49,16 @@ export class CustomerDetail implements OnInit {
   }
 
   loadCustomer(id: number): void {
-    this.isLoading = true;
+    this.isLoading = false;
     this.customerService.getSalesHistory(id).subscribe({
-      next: c => { this.customer = c; this.isLoading = false; },
+      next: c => { this.customer = c; this.isLoading = false; 
+        this.cdr.detectChanges();
+      },
       error: () => {
         this.snackBar.open('Failed to load customer',
           'Close', { duration: 3000 });
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
