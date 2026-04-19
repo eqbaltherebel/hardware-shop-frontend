@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,7 +39,8 @@ export class SaleDetail implements OnInit {
     private saleService: SaleService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -48,13 +49,20 @@ export class SaleDetail implements OnInit {
   }
 
   loadSale(id: number): void {
-    this.isLoading = true;
+    this.isLoading = false;
     this.saleService.getById(id).subscribe({
-      next: (sale) => { this.sale = sale; this.isLoading = false; },
+      next: (sale) => { 
+        console.log('API Response:', sale);
+        console.log('Sale Items:', sale?.invoiceNumber);
+        this.sale = sale; 
+        this.isLoading = false; 
+        this.cdr.detectChanges();
+      },
       error: () => {
         this.snackBar.open('Failed to load sale', 'Close',
           { duration: 3000 });
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

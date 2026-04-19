@@ -9,9 +9,7 @@
       <span class="invoice-number">
         {{ sale?.invoiceNumber || '...' }}
       </span>
-      <span *ngIf="sale"
-            [class]="'status-pill status-'
-              + sale.status.toLowerCase()">
+      <span *ngIf="sale" [class]="'status-pill status-' + (sale?.status?.toLowerCase() || '')">
         {{ sale.status }}
       </span>
     </div>
@@ -137,7 +135,7 @@
           </div>
 
           <!-- Desktop table -->
-          <table mat-table [dataSource]="sale.saleItems"
+          <table mat-table [dataSource]="sale?.saleItems || []"
                  class="items-table">
 
             <ng-container matColumnDef="photo">
@@ -184,8 +182,7 @@
             <ng-container matColumnDef="profit">
               <th mat-header-cell *matHeaderCellDef>Profit</th>
               <td mat-cell *matCellDef="let si">
-                <span [class]="si.profit >= 0
-                                ? 'profit-pos' : 'profit-neg'">
+                <span [class]="(si.profit ?? 0) >= 0 ? 'profit-pos' : 'profit-neg'">
                   ₹{{ si.profit | number:'1.2-2' }}
                 </span>
               </td>
@@ -225,8 +222,7 @@
                     ₹{{ si.subtotal | number:'1.2-2' }}
                   </strong>
                 </div>
-                <div [class]="si.profit >= 0
-                               ? 'profit-pos' : 'profit-neg'">
+                <div [class]="(si.profit ?? 0) >= 0 ? 'profit-pos' : 'profit-neg'">
                   Profit: ₹{{ si.profit | number:'1.2-2' }}
                 </div>
               </div>
@@ -239,26 +235,26 @@
         <div class="totals-card">
           <div class="total-row">
             <span>Subtotal</span>
-            <span>₹{{ sale.totalAmount | number:'1.2-2' }}</span>
+            <span>₹{{ sale?.totalAmount ?? 0 | number:'1.2-2' }}</span>
           </div>
           <div class="total-row cost-row">
             <span>Cost of Goods</span>
-            <span>₹{{ sale.totalCost | number:'1.2-2' }}</span>
+            <span>₹{{ sale?.totalCost ?? 0 | number:'1.2-2' }}</span>
           </div>
 
           <mat-divider style="margin: 12px 0"></mat-divider>
 
           <div class="total-row grand-total">
             <span>Total Collected</span>
-            <span>₹{{ sale.totalAmount | number:'1.2-2' }}</span>
+            <span>₹{{ sale?.totalAmount ?? 0 | number:'1.2-2' }}</span>
           </div>
           <div class="total-row profit-total">
             <span>
-              {{ (sale.profit >= 0) ? 'Net Profit' : 'Net Loss' }}
+              {{ ((sale?.profit ?? 0) >= 0) ? 'Net Profit' : 'Net Loss' }}
             </span>
             <div class="profit-right">
               <span [class]="profitClass">
-                ₹{{ sale.profit | number:'1.2-2' }}
+                {{ ((sale?.profit ?? 0) >= 0) ? 'Net Profit' : 'Net Loss' }}
               </span>
               <span class="profit-margin" [class]="profitClass">
                 ({{ profitMargin | number:'1.1-1' }}%)
