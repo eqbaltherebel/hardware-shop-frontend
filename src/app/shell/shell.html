@@ -1,43 +1,66 @@
 <mat-sidenav-container class="shell-container">
-
   <!-- Sidebar -->
-  <mat-sidenav
-    #sidenav
-    [mode]="isMobile ? 'over' : 'side'"
-    [opened]="!isMobile"
-    class="sidenav">
-
+  <mat-sidenav #sidenav [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="sidenav">
     <div class="brand">
       <mat-icon class="brand-icon">hardware</mat-icon>
       <span>HardwareShop</span>
     </div>
 
     <nav class="nav-links">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item"
-         (click)="isMobile && sidenav.close()">
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="isMobile && sidenav.close()"
+      >
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </a>
-      <a routerLink="/items" routerLinkActive="active" class="nav-item"
-         (click)="isMobile && sidenav.close()">
+      <a
+        routerLink="/items"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="isMobile && sidenav.close()"
+      >
         <mat-icon>inventory_2</mat-icon>
         <span>Inventory</span>
       </a>
-      <a routerLink="/locations" routerLinkActive="active" class="nav-item"
-         (click)="isMobile && sidenav.close()">
+      <a
+        routerLink="/locations"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="isMobile && sidenav.close()"
+      >
         <mat-icon>place</mat-icon>
         <span>Locations</span>
       </a>
       <!-- Divider -->
       <div class="nav-divider"></div>
 
-      <a routerLink="/sales" routerLinkActive="active"
-        class="nav-item" (click)="isMobile && sidenav.close()">
+      <a
+        routerLink="/sales"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="isMobile && sidenav.close()"
+      >
         <mat-icon>point_of_sale</mat-icon><span>Sales</span>
       </a>
-      <a routerLink="/sales/report" routerLinkActive="active"
-        class="nav-item" (click)="isMobile && sidenav.close()">
+      <a
+        routerLink="/sales/report"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="isMobile && sidenav.close()"
+      >
         <mat-icon>bar_chart</mat-icon><span>Reports</span>
+      </a>
+      <a
+        routerLink="/customers"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="isMobile && sidenav.close()"
+      >
+        <mat-icon>people</mat-icon>
+        <span>Customers</span>
       </a>
     </nav>
 
@@ -57,13 +80,15 @@
 
   <!-- Main Content -->
   <mat-sidenav-content class="main-content">
-
     <!-- Mobile Toolbar: visible only on mobile -->
     @if (isMobile) {
       <div class="mobile-toolbar">
-        <button mat-icon-button class="hamburger-btn"
-                (click)="sidenav.toggle()"
-                aria-label="Toggle navigation">
+        <button
+          mat-icon-button
+          class="hamburger-btn"
+          (click)="sidenav.toggle()"
+          aria-label="Toggle navigation"
+        >
           <mat-icon>menu</mat-icon>
         </button>
         <div class="mobile-brand">
@@ -75,5 +100,4 @@
 
     <router-outlet></router-outlet>
   </mat-sidenav-content>
-
 </mat-sidenav-container>

@@ -1,0 +1,221 @@
+<div class="detail-container">
+
+  <div class="top-bar">
+    <button mat-icon-button routerLink="/customers">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 *ngIf="customer">{{ customer.name }}</h1>
+  </div>
+
+  <div class="loading-wrap" *ngIf="isLoading">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="customer">
+
+    <div class="detail-layout">
+
+      <!-- LEFT: Customer info card -->
+      <div class="left-panel">
+        <div class="profile-card">
+
+          <div class="profile-avatar">
+            {{ customer.name.charAt(0).toUpperCase() }}
+          </div>
+          <h2 class="profile-name">{{ customer.name }}</h2>
+
+          <div class="profile-info">
+            <div class="info-row" *ngIf="customer.phone">
+              <mat-icon>phone</mat-icon>
+              <span>{{ customer.phone }}</span>
+            </div>
+            <div class="info-row" *ngIf="customer.address">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ customer.address }}</span>
+            </div>
+            <div class="info-row" *ngIf="customer.email">
+              <mat-icon>email</mat-icon>
+              <span>{{ customer.email }}</span>
+            </div>
+            <div class="info-row">
+              <mat-icon>calendar_today</mat-icon>
+              <span>
+                Customer since
+                {{ customer.createdAt | date:'MMM yyyy' }}
+              </span>
+            </div>
+          </div>
+
+          <mat-divider style="margin: 20px 0"></mat-divider>
+
+          <!-- Stats -->
+          <div class="stat-grid">
+            <div class="stat-item blue">
+              <div class="stat-val">
+                {{ customer.totalPurchases }}
+              </div>
+              <div class="stat-lbl">Purchases</div>
+            </div>
+            <div class="stat-item green">
+              <div class="stat-val">
+                ₹{{ customer.totalSpent | number:'1.0-0' }}
+              </div>
+              <div class="stat-lbl">Total Spent</div>
+            </div>
+            <div class="stat-item orange">
+              <div class="stat-val">
+                ₹{{ avgOrderValue | number:'1.0-0' }}
+              </div>
+              <div class="stat-lbl">Avg Order</div>
+            </div>
+            <div class="stat-item teal">
+              <div class="stat-val">
+                ₹{{ customer.totalProfit | number:'1.0-0' }}
+              </div>
+              <div class="stat-lbl">Your Profit</div>
+            </div>
+          </div>
+
+          <div class="last-purchase" *ngIf="customer.lastPurchase">
+            <mat-icon>access_time</mat-icon>
+            Last purchase:
+            {{ customer.lastPurchase | date:'dd MMM yyyy' }}
+          </div>
+
+          <button mat-raised-button color="primary"
+                  [routerLink]="['/sales/new']"
+                  style="width:100%;margin-top:20px">
+            <mat-icon>point_of_sale</mat-icon>
+            New Sale for this Customer
+          </button>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: Purchase history -->
+      <div class="right-panel">
+        <div class="history-card">
+          <div class="history-header">
+            <h2>
+              <mat-icon>receipt_long</mat-icon>
+              Purchase History
+            </h2>
+            <span class="count-badge">
+              {{ customer.sales?.length || 0 }} invoice(s)
+            </span>
+          </div>
+
+          <!-- Desktop table -->
+          <table mat-table [dataSource]="customer.sales || []"
+                 class="sales-table">
+
+            <ng-container matColumnDef="invoice">
+              <th mat-header-cell *matHeaderCellDef>Invoice</th>
+              <td mat-cell *matCellDef="let s">
+                <span class="invoice-mono">
+                  {{ s.invoiceNumber }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let s">
+                {{ s.saleDate | date:'dd MMM yyyy' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="items">
+              <th mat-header-cell *matHeaderCellDef>Items</th>
+              <td mat-cell *matCellDef="let s">
+                <!-- Show thumbnails of purchased items -->
+                <div class="item-thumbs">
+                  <ng-container
+                    *ngFor="let si of s.saleItems?.slice(0,3)">
+                    <img *ngIf="si.itemPhotoUrl"
+                         [src]="si.itemPhotoUrl"
+                         class="mini-thumb"
+                         [matTooltip]="si.itemName"
+                         alt="">
+                    <div *ngIf="!si.itemPhotoUrl"
+                         class="mini-placeholder"
+                         [matTooltip]="si.itemName">
+                      <mat-icon>inventory_2</mat-icon>
+                    </div>
+                  </ng-container>
+                  <span class="more-items"
+                        *ngIf="(s.saleItems?.length || 0) > 3">
+                    +{{ s.saleItems.length - 3 }}
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="total">
+              <th mat-header-cell *matHeaderCellDef>Total</th>
+              <td mat-cell *matCellDef="let s">
+                <strong>₹{{ s.totalAmount | number:'1.2-2' }}</strong>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="profit">
+              <th mat-header-cell *matHeaderCellDef>Profit</th>
+              <td mat-cell *matCellDef="let s">
+                <span [class]="s.profit >= 0
+                                ? 'profit-pos' : 'profit-neg'">
+                  ₹{{ s.profit | number:'1.2-2' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="payment">
+              <th mat-header-cell *matHeaderCellDef>Payment</th>
+              <td mat-cell *matCellDef="let s">
+                <span class="pay-badge">{{ s.paymentMethod }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let s">
+                <span [class]="'status-pill status-'
+                      + s.status?.toLowerCase()">
+                  {{ s.status }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let s">
+                <button mat-icon-button color="primary"
+                        (click)="goToSale(s.id)"
+                        matTooltip="View invoice">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row
+                *matHeaderRowDef="saleColumns"></tr>
+            <tr mat-row
+                *matRowDef="let row; columns: saleColumns;"
+                class="clickable-row"
+                (click)="goToSale(row.id)">
+            </tr>
+          </table>
+
+          <!-- Empty -->
+          <div class="empty-history"
+               *ngIf="!customer.sales?.length">
+            <mat-icon>receipt_long</mat-icon>
+            <p>No purchases yet</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>

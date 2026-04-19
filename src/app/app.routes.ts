@@ -19,6 +19,7 @@ export const routes: Routes = [
       { path: 'sales',                          // ← NEW
         loadChildren: () => import('./sales/sales.routes')
           .then(m => m.SALES_ROUTES) },
+      { path: 'customers', loadChildren: () => import('./customers/customer.routes').then(m => m.CUSTOMER_ROUTES) }
     ]
   },
   { path: '**', redirectTo: 'login' }
