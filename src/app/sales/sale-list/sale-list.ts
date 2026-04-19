@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,8 +17,7 @@ import { SaleResponse } from '../../models/sale.model';
   imports: [
     CommonModule, RouterModule,
     MatTableModule, MatButtonModule, MatIconModule,
-    MatChipsModule, MatSnackBarModule, MatDialogModule,
-    MatTooltipModule
+    MatChipsModule, MatSnackBarModule, MatTooltipModule
   ],
   templateUrl: './sale-list.html',
   styleUrls: ['./sale-list.scss']
@@ -36,7 +35,8 @@ export class SaleList implements OnInit {
   constructor(
     private saleService: SaleService,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router           // ← add Router
   ) {}
 
   ngOnInit(): void {
@@ -64,14 +64,22 @@ export class SaleList implements OnInit {
   });
 }
 
-  cancelSale(sale: SaleResponse): void {
-    if (!confirm(`Cancel sale ${sale.invoiceNumber}? Stock will be restored.`))
+  // Navigate to detail on row click
+  goToDetail(id: number): void {
+    this.router.navigate(['/sales', id]);
+  }
+
+  // Cancel sale — stop event so row click doesn't fire too
+  cancelSale(sale: SaleResponse, event: MouseEvent): void {
+    event.stopPropagation();
+    if (!confirm(
+      `Cancel sale ${sale.invoiceNumber}? Stock will be restored.`))
       return;
 
     this.saleService.cancelSale(sale.id).subscribe({
       next: () => {
-        this.snackBar.open('Sale cancelled. Stock restored.', 'Close',
-          { duration: 3000 });
+        this.snackBar.open('Sale cancelled. Stock restored.',
+          'Close', { duration: 3000 });
         this.loadSales();
       },
       error: (err) => this.snackBar.open(
@@ -84,7 +92,7 @@ export class SaleList implements OnInit {
     const today = new Date().toDateString();
     return this.sales
       .filter(s => s.status === 'COMPLETED' &&
-                   new Date(s.saleDate).toDateString() === today)
+        new Date(s.saleDate).toDateString() === today)
       .reduce((sum, s) => sum + s.totalAmount, 0);
   }
 
@@ -92,7 +100,7 @@ export class SaleList implements OnInit {
     const today = new Date().toDateString();
     return this.sales
       .filter(s => s.status === 'COMPLETED' &&
-                   new Date(s.saleDate).toDateString() === today)
+        new Date(s.saleDate).toDateString() === today)
       .reduce((sum, s) => sum + s.profit, 0);
   }
 }
