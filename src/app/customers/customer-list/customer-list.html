@@ -1,0 +1,138 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <div>
+      <h1>Customers</h1>
+      <p class="subtitle">{{ customers.length }} registered customers</p>
+    </div>
+    <button mat-raised-button color="primary"
+            (click)="openForm()">
+      <mat-icon>person_add</mat-icon> Add Customer
+    </button>
+  </div>
+
+  <!-- Search -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>
+      Search by name, phone or address...
+    </mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput
+           [(ngModel)]="searchQuery"
+           (input)="onSearch(searchQuery)"
+           placeholder="e.g. Rahul, 9876543210, Main Street">
+    <button *ngIf="searchQuery" matSuffix mat-icon-button
+            (click)="searchQuery=''; loadAll()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    <mat-icon class="spin">autorenew</mat-icon> Loading...
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap mat-elevation-z2">
+    <table mat-table [dataSource]="customers">
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Customer</th>
+        <td mat-cell *matCellDef="let c">
+          <div class="customer-cell">
+            <div class="avatar">
+              {{ c.name.charAt(0).toUpperCase() }}
+            </div>
+            <div>
+              <div class="customer-name">{{ c.name }}</div>
+              <div class="customer-email"
+                   *ngIf="c.email">{{ c.email }}
+              </div>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="phone">
+        <th mat-header-cell *matHeaderCellDef>Phone</th>
+        <td mat-cell *matCellDef="let c">
+          <span *ngIf="c.phone" class="phone-badge">
+            <mat-icon>phone</mat-icon> {{ c.phone }}
+          </span>
+          <span *ngIf="!c.phone" class="no-data">—</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="address">
+        <th mat-header-cell *matHeaderCellDef>Address</th>
+        <td mat-cell *matCellDef="let c">
+          <span *ngIf="c.address" class="address-text">
+            {{ c.address }}
+          </span>
+          <span *ngIf="!c.address" class="no-data">—</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="purchases">
+        <th mat-header-cell *matHeaderCellDef>Purchases</th>
+        <td mat-cell *matCellDef="let c">
+          <span class="count-badge">{{ c.totalPurchases }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="spent">
+        <th mat-header-cell *matHeaderCellDef>Total Spent</th>
+        <td mat-cell *matCellDef="let c">
+          <strong>₹{{ c.totalSpent | number:'1.0-0' }}</strong>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="lastPurchase">
+        <th mat-header-cell *matHeaderCellDef>Last Purchase</th>
+        <td mat-cell *matCellDef="let c">
+          <span *ngIf="c.lastPurchase">
+            {{ c.lastPurchase | date:'dd MMM yyyy' }}
+          </span>
+          <span *ngIf="!c.lastPurchase" class="no-data">
+            Never
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let c"
+            (click)="$event.stopPropagation()">
+          <button mat-icon-button color="primary"
+                  (click)="openForm(c)"
+                  matTooltip="Edit customer">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn"
+                  (click)="deleteCustomer(c, $event)"
+                  matTooltip="Delete customer">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          class="clickable-row"
+          (click)="goToDetail(row.id)">
+      </tr>
+    </table>
+
+    <div class="empty-state"
+         *ngIf="customers.length === 0">
+      <mat-icon>people</mat-icon>
+      <p>No customers found</p>
+      <button mat-raised-button color="primary"
+              (click)="openForm()">
+        Add First Customer
+      </button>
+    </div>
+  </div>
+
+</div>

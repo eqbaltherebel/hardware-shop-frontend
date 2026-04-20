@@ -1,0 +1,271 @@
+<div class="detail-container">
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <button mat-icon-button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="top-bar-info">
+      <span class="invoice-number">
+        {{ sale?.invoiceNumber || '...' }}
+      </span>
+      <span *ngIf="sale" [class]="'status-pill status-' + (sale?.status?.toLowerCase() || '')">
+        {{ sale.status }}
+      </span>
+    </div>
+    <div class="top-bar-actions" *ngIf="sale">
+      <button mat-stroked-button color="warn"
+              *ngIf="sale.status === 'COMPLETED'"
+              (click)="cancelSale()"
+              [disabled]="isCancelling">
+        <mat-spinner *ngIf="isCancelling"
+                     diameter="16" class="btn-spinner">
+        </mat-spinner>
+        <mat-icon *ngIf="!isCancelling">cancel</mat-icon>
+        {{ isCancelling ? 'Cancelling...' : 'Cancel Sale' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="isLoading">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading invoice...</p>
+  </div>
+
+  <ng-container *ngIf="sale && !isLoading">
+
+    <div class="detail-layout">
+
+      <!-- LEFT — Invoice details -->
+      <div class="left-panel">
+
+        <!-- Invoice Header Card -->
+        <div class="invoice-card">
+          <div class="invoice-header">
+            <div class="invoice-brand">
+              <mat-icon class="brand-icon">hardware</mat-icon>
+              <div>
+                <div class="brand-name">HardwareShop</div>
+                <div class="brand-sub">Tax Invoice</div>
+              </div>
+            </div>
+            <div class="invoice-meta">
+              <div class="meta-row">
+                <span class="meta-label">Invoice No.</span>
+                <span class="meta-value mono">
+                  {{ sale.invoiceNumber }}
+                </span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Date</span>
+                <span class="meta-value">
+                  {{ sale.saleDate | date:'dd MMM yyyy' }}
+                </span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Time</span>
+                <span class="meta-value">
+                  {{ sale.saleDate | date:'hh:mm a' }}
+                </span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Sold By</span>
+                <span class="meta-value">{{ sale.soldBy }}</span>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Customer Info -->
+          <div class="customer-section">
+            <div class="section-label">
+              <mat-icon>person</mat-icon> Customer
+            </div>
+            <div class="customer-detail">
+              <div class="customer-avatar">
+                {{ (sale.customerName || 'W').charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <div class="customer-name">
+                  {{ sale.customerName || 'Walk-in Customer' }}
+                </div>
+                <div class="customer-phone" *ngIf="sale.customerPhone">
+                  <mat-icon>phone</mat-icon>
+                  {{ sale.customerPhone }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Payment Info -->
+          <div class="payment-section">
+            <div class="section-label">
+              <mat-icon>payments</mat-icon> Payment
+            </div>
+            <div class="payment-method">
+              <mat-icon>{{ getPaymentIcon(sale.paymentMethod) }}</mat-icon>
+              <span>{{ sale.paymentMethod }}</span>
+            </div>
+            <div class="notes-section" *ngIf="sale.notes">
+              <mat-icon>notes</mat-icon>
+              <span>{{ sale.notes }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT — Items + totals -->
+      <div class="right-panel">
+
+        <!-- Items Table Card -->
+        <div class="items-card">
+          <div class="items-header">
+            <h2>
+              <mat-icon>shopping_cart</mat-icon>
+              Items Purchased
+            </h2>
+            <span class="item-count">
+              {{ sale.saleItems?.length }} item(s)
+            </span>
+          </div>
+
+          <!-- Desktop table -->
+          <table mat-table [dataSource]="sale?.saleItems || []"
+                 class="items-table">
+
+            <ng-container matColumnDef="photo">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let si">
+                <img *ngIf="si.itemPhotoUrl"
+                     [src]="si.itemPhotoUrl"
+                     class="item-thumb" alt="">
+                <div class="thumb-placeholder"
+                     *ngIf="!si.itemPhotoUrl">
+                  <mat-icon>inventory_2</mat-icon>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Item</th>
+              <td mat-cell *matCellDef="let si">
+                <div class="item-name">{{ si.itemName }}</div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="price">
+              <th mat-header-cell *matHeaderCellDef>Unit Price</th>
+              <td mat-cell *matCellDef="let si">
+                ₹{{ si.priceAtSale | number:'1.2-2' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="qty">
+              <th mat-header-cell *matHeaderCellDef>Qty</th>
+              <td mat-cell *matCellDef="let si">
+                <span class="qty-badge">{{ si.quantitySold }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="subtotal">
+              <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+              <td mat-cell *matCellDef="let si">
+                <strong>₹{{ si.subtotal | number:'1.2-2' }}</strong>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="profit">
+              <th mat-header-cell *matHeaderCellDef>Profit</th>
+              <td mat-cell *matCellDef="let si">
+                <span [class]="(si.profit ?? 0) >= 0 ? 'profit-pos' : 'profit-neg'">
+                  ₹{{ si.profit | number:'1.2-2' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row
+                *matHeaderRowDef="itemColumns"></tr>
+            <tr mat-row
+                *matRowDef="let row; columns: itemColumns;">
+            </tr>
+          </table>
+
+          <!-- Mobile cards — shown instead of table on small screens -->
+          <div class="mobile-items">
+            <div class="mobile-item-card"
+                 *ngFor="let si of sale.saleItems">
+              <div class="mobile-item-top">
+                <img *ngIf="si.itemPhotoUrl"
+                     [src]="si.itemPhotoUrl"
+                     class="item-thumb" alt="">
+                <div class="thumb-placeholder"
+                     *ngIf="!si.itemPhotoUrl">
+                  <mat-icon>inventory_2</mat-icon>
+                </div>
+                <div class="mobile-item-info">
+                  <div class="item-name">{{ si.itemName }}</div>
+                  <div class="mobile-item-price">
+                    ₹{{ si.priceAtSale | number:'1.2-2' }}
+                    × {{ si.quantitySold }}
+                  </div>
+                </div>
+              </div>
+              <div class="mobile-item-bottom">
+                <div class="mobile-subtotal">
+                  Subtotal:
+                  <strong>
+                    ₹{{ si.subtotal | number:'1.2-2' }}
+                  </strong>
+                </div>
+                <div [class]="(si.profit ?? 0) >= 0 ? 'profit-pos' : 'profit-neg'">
+                  Profit: ₹{{ si.profit | number:'1.2-2' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Totals Card -->
+        <div class="totals-card">
+          <div class="total-row">
+            <span>Subtotal</span>
+            <span>₹{{ sale?.totalAmount ?? 0 | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-row cost-row">
+            <span>Cost of Goods</span>
+            <span>₹{{ sale?.totalCost ?? 0 | number:'1.2-2' }}</span>
+          </div>
+
+          <mat-divider style="margin: 12px 0"></mat-divider>
+
+          <div class="total-row grand-total">
+            <span>Total Collected</span>
+            <span>₹{{ sale?.totalAmount ?? 0 | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-row profit-total">
+            <span>
+              {{ ((sale?.profit ?? 0) >= 0) ? 'Net Profit' : 'Net Loss' }}
+            </span>
+            <div class="profit-right">
+              <span [class]="profitClass">
+                {{ ((sale?.profit ?? 0) >= 0) ? 'Net Profit' : 'Net Loss' }}
+              </span>
+              <span class="profit-margin" [class]="profitClass">
+                ({{ profitMargin | number:'1.1-1' }}%)
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

@@ -1,0 +1,172 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <button mat-icon-button routerLink="/sales">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Sales Report</h1>
+      <p class="subtitle">Track revenue, profit and top selling items</p>
+    </div>
+  </div>
+
+  <!-- Date Range Picker -->
+  <div class="date-filter-card">
+    <div class="filter-row">
+  <button mat-stroked-button (click)="loadToday()" class="quick-btn">
+    <mat-icon>today</mat-icon>
+    <span class="btn-label">Today</span>
+  </button>
+
+  <mat-form-field appearance="outline" class="date-field">
+    <mat-label>From Date</mat-label>
+    <input matInput [matDatepicker]="fromPicker" [(ngModel)]="fromDate">
+    <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+    <mat-datepicker #fromPicker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="date-field">
+    <mat-label>To Date</mat-label>
+    <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate">
+    <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+    <mat-datepicker #toPicker></mat-datepicker>
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="loadCustom()" class="generate-btn">
+    <mat-icon>search</mat-icon>
+    <span class="btn-label">Generate Report</span>
+  </button>
+</div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Generating report...</p>
+  </div>
+
+  <ng-container *ngIf="report && !isLoading">
+
+    <!-- Period label -->
+    <div class="period-label">
+      <mat-icon>date_range</mat-icon>
+      {{ report.fromDate }} — {{ report.toDate }}
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="sum-card blue">
+        <mat-icon>receipt_long</mat-icon>
+        <div class="sum-value">{{ report.totalSales }}</div>
+        <div class="sum-label">Total Sales</div>
+      </div>
+      <div class="sum-card green">
+        <mat-icon>currency_rupee</mat-icon>
+        <div class="sum-value">
+          ₹{{ report.totalRevenue | number:'1.0-0' }}
+        </div>
+        <div class="sum-label">Total Revenue</div>
+      </div>
+      <div class="sum-card" [class.teal]="isProfitable"
+                            [class.red]="!isProfitable">
+        <mat-icon>{{ isProfitable ? 'trending_up' : 'trending_down' }}</mat-icon>
+        <div class="sum-value">
+          ₹{{ report.totalProfit | number:'1.0-0' }}
+        </div>
+        <div class="sum-label">
+          {{ isProfitable ? 'Total Profit' : 'Total Loss' }}
+        </div>
+      </div>
+      <div class="sum-card orange">
+        <mat-icon>percent</mat-icon>
+        <div class="sum-value">
+          {{ report.profitMargin | number:'1.1-1' }}%
+        </div>
+        <div class="sum-label">Profit Margin</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid" *ngIf="report.totalSales > 0">
+      <div class="chart-card">
+        <canvas baseChart [data]="barChartData"
+                [options]="barChartOptions"
+                type="bar"></canvas>
+      </div>
+      <div class="chart-card">
+        <canvas baseChart [data]="doughnutData"
+                [options]="doughnutOptions"
+                type="doughnut"></canvas>
+      </div>
+    </div>
+
+    <!-- Top Items -->
+    <div class="table-card" *ngIf="report && report.topItems && report.topItems.length > 0">
+      <h2>
+        <mat-icon>emoji_events</mat-icon>
+        Top Selling Items
+      </h2>
+
+      <!-- ADD this scroll wrapper -->
+      <div class="table-scroll">
+        <table mat-table [dataSource]="report.topItems || []">
+
+          <ng-container matColumnDef="rank">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let item; let i = index">
+              <span class="rank-badge"
+                    [class.gold]="i === 0"
+                    [class.silver]="i === 1"
+                    [class.bronze]="i === 2">
+                {{ i + 1 }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="item">
+            <th mat-header-cell *matHeaderCellDef>Item</th>
+            <td mat-cell *matCellDef="let item">
+              <div class="top-item-cell">
+                <img *ngIf="item.itemPhotoUrl" [src]="item.itemPhotoUrl"
+                    class="top-thumb" alt="" />
+                <strong>{{ item.itemName }}</strong>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="qty">
+            <th mat-header-cell *matHeaderCellDef>Qty Sold</th>
+            <td mat-cell *matCellDef="let item">
+              <strong>{{ item.totalQuantitySold }}</strong>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="revenue">
+            <th mat-header-cell *matHeaderCellDef>Revenue</th>
+            <td mat-cell *matCellDef="let item">₹{{ item.totalRevenue | number:'1.2-2' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="profit">
+            <th mat-header-cell *matHeaderCellDef>Profit</th>
+            <td mat-cell *matCellDef="let item">
+              <span [class]="item.totalProfit >= 0 ? 'profit-pos' : 'profit-neg'">
+                ₹{{ item.totalProfit | number:'1.2-2' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="topItemColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: topItemColumns;"></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- No data -->
+    <div class="empty-state"
+         *ngIf="report.totalSales === 0">
+      <mat-icon>bar_chart</mat-icon>
+      <p>No sales in this period</p>
+    </div>
+
+  </ng-container>
+</div>
