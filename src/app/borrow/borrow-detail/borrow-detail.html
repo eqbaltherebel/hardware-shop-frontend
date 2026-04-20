@@ -1,0 +1,296 @@
+<div class="page-container">
+
+  <div class="top-bar">
+    <button mat-icon-button routerLink="/borrow/list">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Credit Entry Detail</h1>
+    <button mat-stroked-button color="primary"
+            *ngIf="entry"
+            [routerLink]="['/borrow/ledger', entry.customerId]">
+      <mat-icon>book</mat-icon> View Ledger
+    </button>
+  </div>
+
+  <div class="loading-wrap" *ngIf="isLoading">
+    <mat-icon class="spin">autorenew</mat-icon>
+  </div>
+
+  <ng-container *ngIf="entry">
+    <div class="detail-layout">
+
+      <!-- LEFT: Entry Info -->
+      <div class="left-panel">
+        <div class="info-card">
+
+          <!-- Customer -->
+          <div class="cust-block">
+            <div class="cust-avatar">
+              {{ entry.customerName.charAt(0).toUpperCase() }}
+            </div>
+            <div>
+              <div class="cust-name">{{ entry.customerName }}</div>
+              <div class="cust-meta">
+                <span *ngIf="entry.customerPhone">
+                  <mat-icon>phone</mat-icon>
+                  {{ entry.customerPhone }}
+                </span>
+                <span *ngIf="entry.customerAddress">
+                  <mat-icon>location_on</mat-icon>
+                  {{ entry.customerAddress }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider style="margin: 16px 0"></mat-divider>
+
+          <!-- Status -->
+          <div class="status-row">
+            <span [class]="'status-pill status-'
+                  + entry.status.toLowerCase()">
+              {{ entry.status }}
+            </span>
+            <span class="overdue-tag" *ngIf="entry.overdue">
+              <mat-icon>warning</mat-icon> OVERDUE
+            </span>
+          </div>
+
+          <!-- Amounts -->
+          <div class="amount-block">
+            <div class="a-row">
+              <span>Total Credit</span>
+              <span class="a-val">
+                ₹{{ entry.totalAmount | number:'1.2-2' }}
+              </span>
+            </div>
+            <div class="a-row">
+              <span>Amount Paid</span>
+              <span class="a-val paid">
+                ₹{{ entry.amountPaid | number:'1.2-2' }}
+              </span>
+            </div>
+            <mat-divider style="margin: 8px 0"></mat-divider>
+            <div class="a-row balance-row">
+              <span>Remaining</span>
+              <span [class]="entry.remainingBalance > 0
+                             ? 'a-val balance' : 'a-val cleared'">
+                ₹{{ entry.remainingBalance | number:'1.2-2' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="progress-wrap">
+            <mat-progress-bar mode="determinate"
+                              [value]="progressPct"
+                              [color]="entry.status === 'CLEARED'
+                                        ? 'primary' : 'accent'">
+            </mat-progress-bar>
+            <div class="progress-label">
+              {{ progressPct | number:'1.0-0' }}% paid
+            </div>
+          </div>
+
+          <!-- Dates -->
+          <div class="dates-block">
+            <div class="date-row">
+              <mat-icon>calendar_today</mat-icon>
+              Borrow Date:
+              <strong>
+                {{ entry.borrowDate | date:'dd MMM yyyy' }}
+              </strong>
+            </div>
+            <div class="date-row" *ngIf="entry.dueDate">
+              <mat-icon [class]="entry.overdue
+                                  ? 'icon-red' : ''">
+                event
+              </mat-icon>
+              Due Date:
+              <strong [class]="entry.overdue ? 'text-red' : ''">
+                {{ entry.dueDate | date:'dd MMM yyyy' }}
+              </strong>
+            </div>
+          </div>
+
+          <div class="desc-block" *ngIf="entry.description">
+            <mat-icon>description</mat-icon>
+            {{ entry.description }}
+          </div>
+
+          <div class="tags-block" *ngIf="entry.tags">
+            <mat-icon>label</mat-icon>
+            <span class="tag"
+                  *ngFor="let t of entry.tags.split(',')">
+              {{ t.trim() }}
+            </span>
+          </div>
+
+          <div class="notes-block" *ngIf="entry.notes">
+            <mat-icon>notes</mat-icon>
+            {{ entry.notes }}
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: Payments -->
+      <div class="right-panel">
+
+        <!-- Add Payment Form -->
+        <div class="payment-form-card"
+             *ngIf="showPaymentForm">
+          <h3>
+            <mat-icon>add_circle</mat-icon>
+            {{ editingPayment ? 'Edit Payment' : 'Record Payment' }}
+          </h3>
+          <form [formGroup]="paymentForm">
+            <div class="row-fields">
+              <mat-form-field appearance="outline">
+                <mat-label>Amount (₹) *</mat-label>
+                <span matPrefix>₹&nbsp;</span>
+                <input matInput type="number"
+                       formControlName="amount"
+                       min="0.01" step="0.01">
+                <mat-hint>
+                  Max: ₹{{ entry.remainingBalance | number:'1.2-2' }}
+                </mat-hint>
+                <mat-error>Enter valid amount</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Payment Date *</mat-label>
+                <input matInput [matDatepicker]="pd"
+                       formControlName="paymentDate">
+                <mat-datepicker-toggle matSuffix [for]="pd">
+                </mat-datepicker-toggle>
+                <mat-datepicker #pd></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <div class="row-fields">
+              <mat-form-field appearance="outline">
+                <mat-label>Payment Method</mat-label>
+                <mat-select formControlName="paymentMethod">
+                  <mat-option value="CASH">Cash</mat-option>
+                  <mat-option value="UPI">UPI</mat-option>
+                  <mat-option value="CARD">Card</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Notes</mat-label>
+                <input matInput formControlName="notes"
+                       placeholder="Optional">
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-stroked-button type="button"
+                      (click)="cancelPaymentForm()">
+                Cancel
+              </button>
+              <button mat-raised-button color="primary"
+                      type="button"
+                      (click)="submitPayment()"
+                      [disabled]="isSaving">
+                <mat-icon>save</mat-icon>
+                {{ editingPayment ? 'Update' : 'Record Payment' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Payments Table Card -->
+        <div class="payments-card">
+          <div class="payments-header">
+            <h2>
+              <mat-icon>receipt_long</mat-icon>
+              Payment History
+              <span class="count">
+                {{ entry.payments?.length || 0 }}
+              </span>
+            </h2>
+            <button mat-raised-button color="primary"
+                    *ngIf="entry.remainingBalance > 0
+                           && !showPaymentForm"
+                    (click)="openPaymentForm()">
+              <mat-icon>add</mat-icon> Add Payment
+            </button>
+          </div>
+
+          <table mat-table [dataSource]="entry.payments || []"
+                 *ngIf="entry.payments?.length">
+
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let p">
+                {{ p.paymentDate | date:'dd MMM yyyy' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef>Amount</th>
+              <td mat-cell *matCellDef="let p">
+                <span class="paid-badge">
+                  ₹{{ p.amount | number:'1.2-2' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="method">
+              <th mat-header-cell *matHeaderCellDef>Method</th>
+              <td mat-cell *matCellDef="let p">
+                <span class="method-badge">
+                  {{ p.paymentMethod || '—' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="notes">
+              <th mat-header-cell *matHeaderCellDef>Notes</th>
+              <td mat-cell *matCellDef="let p">
+                <span class="note-text">
+                  {{ p.notes || '—' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let p">
+                <button mat-icon-button color="primary"
+                        (click)="openPaymentForm(p)"
+                        matTooltip="Edit payment">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn"
+                        (click)="deletePayment(p)"
+                        matTooltip="Delete payment">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row
+                *matHeaderRowDef="paymentColumns"></tr>
+            <tr mat-row
+                *matRowDef="let row; columns: paymentColumns;">
+            </tr>
+          </table>
+
+          <div class="no-payments"
+               *ngIf="!entry.payments?.length">
+            <mat-icon>money_off</mat-icon>
+            <p>No payments recorded yet</p>
+            <button mat-raised-button color="primary"
+                    (click)="openPaymentForm()">
+              Record First Payment
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+</div>

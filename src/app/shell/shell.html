@@ -62,6 +62,15 @@
         <mat-icon>people</mat-icon>
         <span>Customers</span>
       </a>
+      <a
+        routerLink="/borrow"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="isMobile && sidenav.close()"
+      >
+        <mat-icon>account_balance_wallet</mat-icon>
+        <span>Credit Book</span>
+      </a>
     </nav>
 
     <div class="sidenav-footer">

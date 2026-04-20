@@ -1,0 +1,144 @@
+<div class="page-container">
+
+  <div class="top-bar">
+    <button mat-icon-button routerLink="/borrow">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Customer Ledger</h1>
+  </div>
+
+  <div class="loading-wrap" *ngIf="isLoading">
+    <mat-icon class="spin">autorenew</mat-icon>
+  </div>
+
+  <ng-container *ngIf="ledger && !isLoading">
+
+    <!-- Customer Card -->
+    <div class="customer-card">
+      <div class="cust-block">
+        <div class="cust-avatar">
+          {{ ledger.customerName.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <div class="cust-name">{{ ledger.customerName }}</div>
+          <div class="cust-sub">
+            <span *ngIf="ledger.customerPhone">
+              <mat-icon>phone</mat-icon> {{ ledger.customerPhone }}
+            </span>
+            <span *ngIf="ledger.customerAddress">
+              <mat-icon>location_on</mat-icon>
+              {{ ledger.customerAddress }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="ledger-totals">
+        <div class="lt-item red">
+          <div class="lt-val">
+            ₹{{ ledger.totalBorrowed | number:'1.2-2' }}
+          </div>
+          <div class="lt-lbl">Total Borrowed</div>
+        </div>
+        <div class="lt-item green">
+          <div class="lt-val">
+            ₹{{ ledger.totalPaid | number:'1.2-2' }}
+          </div>
+          <div class="lt-lbl">Total Paid</div>
+        </div>
+        <div class="lt-item"
+             [class.orange]="ledger.outstanding > 0"
+             [class.green]="ledger.outstanding <= 0">
+          <div class="lt-val">
+            ₹{{ ledger.outstanding | number:'1.2-2' }}
+          </div>
+          <div class="lt-lbl">
+            {{ ledger.outstanding > 0 ? 'Outstanding' : 'All Clear!' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ledger Table -->
+    <div class="ledger-card">
+      <h2><mat-icon>menu_book</mat-icon> Transaction Ledger</h2>
+
+      <table mat-table [dataSource]="ledger.entries">
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let e">
+            {{ e.date | date:'dd MMM yyyy' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let e">
+            <span [class]="'type-badge type-'
+                  + e.type.toLowerCase()">
+              <mat-icon>
+                {{ e.type === 'BORROW' ? 'arrow_downward'
+                                       : 'arrow_upward' }}
+              </mat-icon>
+              {{ e.type }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let e">
+            <div class="desc-text">{{ e.description || '—' }}</div>
+            <div class="notes-text" *ngIf="e.notes">{{ e.notes }}</div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="borrow">
+          <th mat-header-cell *matHeaderCellDef>Debit (₹)</th>
+          <td mat-cell *matCellDef="let e">
+            <span *ngIf="e.type === 'BORROW'"
+                  class="debit-amt">
+              {{ e.amount | number:'1.2-2' }}
+            </span>
+            <span *ngIf="e.type !== 'BORROW'" class="na">—</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="paid">
+          <th mat-header-cell *matHeaderCellDef>Credit (₹)</th>
+          <td mat-cell *matCellDef="let e">
+            <span *ngIf="e.type === 'PAYMENT'"
+                  class="credit-amt">
+              {{ e.paid | number:'1.2-2' }}
+            </span>
+            <span *ngIf="e.type !== 'PAYMENT'" class="na">—</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="balance">
+          <th mat-header-cell *matHeaderCellDef>Balance (₹)</th>
+          <td mat-cell *matCellDef="let e">
+            <span [class]="e.balance > 0
+                            ? 'balance-due' : 'balance-clear'">
+              {{ e.balance | number:'1.2-2' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row
+            *matRowDef="let row; columns: columns;"
+            [class.borrow-row]="row.type === 'BORROW'"
+            [class.payment-row]="row.type === 'PAYMENT'">
+        </tr>
+      </table>
+
+      <div class="empty-ledger"
+           *ngIf="!ledger.entries?.length">
+        <mat-icon>menu_book</mat-icon>
+        <p>No transactions yet</p>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
