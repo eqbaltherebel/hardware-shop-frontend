@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -39,6 +39,9 @@ export class BorrowDashboard implements OnInit {
   activeTab: 'summary' | 'overdue' | 'search' = 'summary';
   Math = Math;
 
+  /** True when viewport ≤ 768px */
+  isMobile = false;
+
   private searchSubject = new Subject<string>();
 
   custColumns = [
@@ -57,6 +60,7 @@ export class BorrowDashboard implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.checkScreen();
     this.load();
 
     this.searchSubject.pipe(
@@ -65,8 +69,7 @@ export class BorrowDashboard implements OnInit {
     ).subscribe(q => {
       if (q.trim()) {
         this.activeTab = 'search';
-        this.borrowService.search(q).subscribe(
-          r => this.searchResults = r);
+        this.borrowService.search(q).subscribe(r => this.searchResults = r);
       } else {
         this.activeTab = 'summary';
         this.searchResults = [];
@@ -74,26 +77,32 @@ export class BorrowDashboard implements OnInit {
     });
   }
 
+  @HostListener('window:resize')
+  onResize(): void { this.checkScreen(); }
+
+  private checkScreen(): void {
+    this.isMobile = window.innerWidth <= 768;
+  }
+
   load(): void {
     this.isLoading = false;
     this.borrowService.getSummary().subscribe({
-      next: s => { 
+      next: s => {
         this.summary = s;
-        this.isLoading = false; 
+        this.isLoading = false;
         this.cdr.detectChanges();
       }
     });
-    this.borrowService.getOverdue().subscribe(
-      r => this.overdueEntries = r);
+    this.borrowService.getOverdue().subscribe(r => this.overdueEntries = r);
   }
 
   onSearch(q: string): void {
     this.searchSubject.next(q);
   }
 
-  overdueDays(due: string): number {
-    const diff = new Date().getTime()
-                 - new Date(due).getTime();
+  overdueDays(due: string | undefined): number {
+    if (!due) return 0;
+    const diff = new Date().getTime() - new Date(due).getTime();
     return Math.floor(diff / (1000 * 60 * 60 * 24));
   }
 

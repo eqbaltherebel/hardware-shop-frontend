@@ -1,55 +1,125 @@
+/* Global-ish safeguards so nothing inside can blow out on mobile */
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
 .page-container {
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  overflow-x: hidden;
+
+  @media (max-width: 768px) { padding: 14px; }
+  @media (max-width: 480px) { padding: 10px; }
 }
 
+/* ── Header ─────────────────────────────────── */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
 
-  h1 { margin: 0; font-size: 28px; font-weight: 700; }
-  .subtitle { color: #888; font-size: 14px; margin: 4px 0 0; }
-  .header-actions { display: flex; gap: 12px; }
+  .header-title { flex: 1 1 200px; min-width: 0; }
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    @media (max-width: 768px) { font-size: 22px; }
+    @media (max-width: 480px) { font-size: 19px; }
+  }
+
+  .subtitle {
+    color: #888;
+    font-size: 14px;
+    margin: 4px 0 0;
+    @media (max-width: 480px) { font-size: 12px; }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    @media (max-width: 600px) {
+      width: 100%;
+      gap: 8px;
+      button { flex: 1 1 0; min-width: 0; }
+    }
+  }
+
+  @media (max-width: 380px) {
+    .btn-text { display: none; }
+  }
 }
 
+/* ── Search field ───────────────────────────── */
 .search-field {
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  @media (max-width: 480px) { margin-bottom: 14px; }
 }
 
+/* ── Summary cards ──────────────────────────── */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 20px;
 
-  @media(max-width: 768px) { grid-template-columns: repeat(2,1fr); }
-  @media(max-width: 480px) { grid-template-columns: 1fr; }
+  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
 }
 
 .sum-card {
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 18px;
   color: #fff;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
 
-  mat-icon { font-size: 30px; height: 30px; width: 30px; opacity: 0.85; }
-  .sum-val  { font-size: 22px; font-weight: 700; }
-  .sum-lbl  { font-size: 12px; opacity: 0.85; }
+  mat-icon { font-size: 28px; height: 28px; width: 28px; opacity: 0.85; }
+  .sum-val { font-size: 20px; font-weight: 700; word-break: break-word; }
+  .sum-lbl { font-size: 12px; opacity: 0.85; }
 
-  &.red    { background: linear-gradient(135deg,#b91c1c,#ef4444); }
-  &.green  { background: linear-gradient(135deg,#15803d,#22c55e); }
-  &.orange { background: linear-gradient(135deg,#c2410c,#fb923c); }
-  &.purple { background: linear-gradient(135deg,#6d28d9,#a78bfa); }
+  &.red    { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+  &.green  { background: linear-gradient(135deg, #15803d, #22c55e); }
+  &.orange { background: linear-gradient(135deg, #c2410c, #fb923c); }
+  &.purple { background: linear-gradient(135deg, #6d28d9, #a78bfa); }
+
+  @media (max-width: 768px) {
+    padding: 14px;
+    border-radius: 12px;
+    mat-icon { font-size: 22px; height: 22px; width: 22px; }
+    .sum-val { font-size: 17px; }
+    .sum-lbl { font-size: 11px; }
+  }
+
+  @media (max-width: 380px) {
+    padding: 12px;
+    .sum-val { font-size: 15px; }
+    .sum-lbl { font-size: 10px; }
+  }
 }
 
+/* ── Overdue banner ─────────────────────────── */
 .overdue-banner {
   display: flex;
   align-items: center;
@@ -57,31 +127,42 @@
   background: #fef2f2;
   border: 1.5px solid #fca5a5;
   border-radius: 12px;
-  padding: 14px 20px;
-  margin-bottom: 24px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
   cursor: pointer;
   color: #b91c1c;
   font-size: 14px;
-  transition: background 0.15s;
 
-  &:hover { background: #fee2e2; }
-  mat-icon:first-child { font-size: 20px; }
-  span { flex: 1; }
+  span { flex: 1; min-width: 0; }
+
+  @media (max-width: 480px) {
+    padding: 10px 12px;
+    font-size: 12px;
+    .chevron { display: none; }
+  }
 }
 
+/* ── Card wrapper ───────────────────────────── */
 .table-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  margin-bottom: 24px;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  margin-bottom: 20px;
+  width: 100%;
+  overflow: hidden;
+
+  @media (max-width: 768px) { padding: 14px; border-radius: 12px; }
+  @media (max-width: 480px) { padding: 12px; }
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  gap: 10px;
+  flex-wrap: wrap;
 
   h2 {
     display: flex;
@@ -91,23 +172,38 @@
     font-weight: 700;
     margin: 0;
     color: #0f172a;
-    mat-icon { color: #1d4ed8; }
+    min-width: 0;
+    flex: 1;
+
+    mat-icon { color: #1d4ed8; flex-shrink: 0; }
+
+    .header-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 480px) { font-size: 15px; }
   }
 }
 
-table { width: 100%; }
-
-.cust-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* ── Desktop table wrapper ──────────────────── */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
+table { width: 100%; min-width: 720px; }
+
+/* ── Shared cell styles ─────────────────────── */
+.cust-cell { display: flex; align-items: center; gap: 10px; }
+
 .cust-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg,#1d4ed8,#60a5fa);
+  background: linear-gradient(135deg, #1d4ed8, #60a5fa);
   color: #fff;
   font-size: 15px;
   font-weight: 700;
@@ -120,9 +216,9 @@ table { width: 100%; }
 .cust-name  { font-weight: 600; font-size: 14px; }
 .cust-phone { font-size: 12px; color: #94a3b8; }
 
-.paid-amt       { color: #16a34a; font-weight: 600; }
-.outstanding-amt{ color: #dc2626; font-weight: 700; }
-.cleared-amt    { color: #16a34a; font-weight: 700; }
+.paid-amt        { color: #16a34a; font-weight: 600; }
+.outstanding-amt { color: #dc2626; font-weight: 700; }
+.cleared-amt     { color: #16a34a; font-weight: 700; }
 
 .limit-exceeded { color: #dc2626; font-weight: 700; font-size: 13px; }
 .limit-ok       { color: #16a34a; font-weight: 600; font-size: 13px; }
@@ -130,11 +226,12 @@ table { width: 100%; }
 
 .limit-bar-wrap {
   width: 80px;
-  height: 4px;
+  height: 5px;
   background: #e2e8f0;
   border-radius: 4px;
   margin-top: 4px;
   overflow: hidden;
+  &.full { width: 100%; }
 }
 
 .limit-bar {
@@ -150,13 +247,15 @@ table { width: 100%; }
   border-radius: 10px;
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &.status-clear   { background: #dcfce7; color: #15803d; }
   &.status-pending { background: #fef9c3; color: #854d0e; }
   &.status-overdue { background: #fee2e2; color: #b91c1c; }
 }
 
-.overdue-date  { color: #dc2626; font-weight: 600; font-size: 13px; }
+.overdue-date { color: #dc2626; font-weight: 600; font-size: 13px; white-space: nowrap; }
 .overdue-badge {
   background: #fee2e2;
   color: #b91c1c;
@@ -164,67 +263,181 @@ table { width: 100%; }
   border-radius: 10px;
   font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-// ── Search results ───────────────────────────────────────────
+/* ── Mobile card layout ─────────────────────── */
+.mobile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.mobile-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:active { background: #f8fafc; }
+  &.overdue:active { background: #fef2f2; border-color: #ef4444; }
+}
+
+.mobile-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  .mobile-cust-info {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .cust-name  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cust-phone { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+
+.mobile-card-amounts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid #f1f5f9;
+
+  &.two-col { grid-template-columns: 1fr 1fr; }
+
+  > div { min-width: 0; }
+
+  .amt-label {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .amt-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    word-break: break-word;
+  }
+  .paid    { color: #16a34a; }
+  .balance { color: #dc2626; }
+}
+
+.mobile-card-limit {
+  padding: 10px 0 4px;
+  border-top: 1px solid #f1f5f9;
+
+  .limit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+}
+
+/* ── Search results ─────────────────────────── */
 .search-result-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  width: 100%;
 }
 
 .result-card {
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 14px;
   cursor: pointer;
   transition: all 0.15s;
+  width: 100%;
 
   &:hover {
     border-color: #1d4ed8;
     background: #f0f9ff;
-    box-shadow: 0 2px 12px rgba(29,78,216,0.1);
   }
+
+  @media (max-width: 480px) { padding: 12px; }
 }
 
 .result-top {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-  .result-info { flex: 1; }
+  gap: 10px;
+  margin-bottom: 12px;
+
+  .result-info { flex: 1; min-width: 0; }
+  .cust-name,
+  .cust-phone {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .result-amounts {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding-top: 12px;
+  gap: 10px;
+  padding-top: 10px;
   border-top: 1px solid #f1f5f9;
 
+  > div { min-width: 0; }
+
   .amt-label { font-size: 11px; color: #94a3b8; margin-bottom: 3px; }
-  .amt-val   { font-size: 15px; font-weight: 700; color: #0f172a; }
+  .amt-val   { font-size: 14px; font-weight: 700; color: #0f172a; word-break: break-word; }
   .paid      { color: #16a34a; }
   .balance   { color: #dc2626; }
+
+  @media (max-width: 480px) {
+    gap: 6px;
+    .amt-val { font-size: 12px; }
+    .amt-label { font-size: 10px; }
+  }
 }
 
 .status-pill {
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: 4px 10px;
+  border-radius: 10px;
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
 
-  &.status-pending   { background: #fef9c3; color: #854d0e; }
-  &.status-partial   { background: #dbeafe; color: #1d4ed8; }
-  &.status-cleared   { background: #dcfce7; color: #15803d; }
-  &.status-overdue   { background: #fee2e2; color: #b91c1c; }
+  &.status-pending     { background: #fef9c3; color: #854d0e; }
+  &.status-partial     { background: #dbeafe; color: #1d4ed8; }
+  &.status-cleared     { background: #dcfce7; color: #15803d; }
+  &.status-overdue     { background: #fee2e2; color: #b91c1c; }
   &.status-written_off { background: #f1f5f9; color: #64748b; }
 }
 
 .empty-state {
   text-align: center;
-  padding: 60px;
+  padding: 50px 16px;
   color: #aaa;
-  mat-icon { font-size: 64px; height: 64px; width: 64px; }
-  p { font-size: 18px; margin: 12px 0; }
+
+  mat-icon { font-size: 56px; height: 56px; width: 56px; }
+  p { font-size: 16px; margin: 10px 0; }
+
+  @media (max-width: 480px) {
+    padding: 32px 12px;
+    mat-icon { font-size: 44px; height: 44px; width: 44px; }
+    p { font-size: 14px; }
+  }
+}
+
+/* ── Material form field overrides on mobile ── */
+@media (max-width: 480px) {
+  ::ng-deep .search-field .mat-mdc-form-field-infix {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  ::ng-deep .mat-mdc-text-field-wrapper { width: 100% !important; }
 }
