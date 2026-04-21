@@ -1,0 +1,139 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <button mat-icon-button routerLink="/borrow">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>All Credit Entries</h1>
+      <p class="subtitle">{{ filtered.length }} entries</p>
+    </div>
+    <button mat-raised-button color="primary"
+            (click)="openForm()">
+      <mat-icon>add</mat-icon> New Entry
+    </button>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="filter-row">
+    <button mat-stroked-button
+            *ngFor="let s of ['ALL','PENDING','PARTIAL',
+                              'CLEARED','OVERDUE']"
+            [class.active-filter]="filterStatus === s"
+            (click)="onFilter(s)">
+      {{ s }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    <mat-icon class="spin">autorenew</mat-icon> Loading...
+  </div>
+
+  <!-- Entry Cards -->
+  <div class="entry-grid">
+    <div class="entry-card"
+         *ngFor="let e of filtered"
+         [class.overdue-card]="e.overdue"
+         (click)="openDetail(e.id)">
+
+      <div class="entry-header">
+        <div class="cust-info">
+          <div class="cust-avatar">
+            {{ e.customerName.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <div class="cust-name">{{ e.customerName }}</div>
+            <div class="cust-phone" *ngIf="e.customerPhone">
+              {{ e.customerPhone }}
+            </div>
+          </div>
+        </div>
+        <div class="entry-actions">
+          <span [class]="'status-pill status-'
+                + e.status.toLowerCase()">
+            {{ e.status }}
+          </span>
+          <button mat-icon-button
+                  (click)="openForm(e); $event.stopPropagation()"
+                  matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn"
+                  (click)="softDelete(e, $event)"
+                  matTooltip="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="overdue-alert" *ngIf="e.overdue">
+        <mat-icon>warning</mat-icon>
+        Overdue since {{ e.dueDate | date:'dd MMM yyyy' }}
+      </div>
+
+      <div class="desc" *ngIf="e.description">{{ e.description }}</div>
+
+      <!-- Progress bar -->
+      <div class="progress-section">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar"
+               [style.width.%]="getProgressPct(e)"
+               [class]="e.status === 'CLEARED'
+                         ? 'bar-green' : 'bar-blue'">
+          </div>
+        </div>
+        <div class="progress-label">
+          {{ getProgressPct(e) | number:'1.0-0' }}% paid
+        </div>
+      </div>
+
+      <!-- Amounts -->
+      <div class="amounts-row">
+        <div class="amt-box">
+          <div class="amt-label">Borrowed</div>
+          <div class="amt-val">
+            ₹{{ e.totalAmount | number:'1.0-0' }}
+          </div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-label">Paid</div>
+          <div class="amt-val paid">
+            ₹{{ e.amountPaid | number:'1.0-0' }}
+          </div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-label">Balance</div>
+          <div class="amt-val balance">
+            ₹{{ e.remainingBalance | number:'1.0-0' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="entry-footer">
+        <span class="date-info">
+          <mat-icon>calendar_today</mat-icon>
+          {{ e.borrowDate | date:'dd MMM yyyy' }}
+        </span>
+        <span class="due-info" *ngIf="e.dueDate">
+          <mat-icon>event</mat-icon>
+          Due: {{ e.dueDate | date:'dd MMM yyyy' }}
+        </span>
+        <span class="tags" *ngIf="e.tags">
+          <mat-icon>label</mat-icon> {{ e.tags }}
+        </span>
+      </div>
+
+    </div>
+
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <p>No entries found</p>
+      <button mat-raised-button color="primary"
+              (click)="openForm()">
+        Add First Entry
+      </button>
+    </div>
+  </div>
+
+</div>
