@@ -1,31 +1,93 @@
 <div class="auth-wrapper">
+
+  <!-- Brand / Marketing Panel -->
   <div class="auth-left">
-    <div class="brand-block">
-      <mat-icon class="brand-icon">hardware</mat-icon>
-      <h1>HardwareShop</h1>
-      <p>Inventory Management System</p>
-    </div>
-    <div class="features">
-      <div class="feature"><mat-icon>inventory_2</mat-icon><span>Track all items & stock</span></div>
-      <div class="feature"><mat-icon>place</mat-icon><span>Know exactly where things are</span></div>
-      <div class="feature"><mat-icon>payments</mat-icon><span>Monitor prices & profits</span></div>
-      <div class="feature"><mat-icon>warning</mat-icon><span>Get low stock alerts</span></div>
+    <!-- Decorative background shapes -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-grid"></div>
+
+    <div class="left-content">
+      <div class="brand-block">
+        <div class="brand-logo">
+          <mat-icon class="brand-icon">hardware</mat-icon>
+        </div>
+        <h1>I.A HARDWARE</h1>
+        <p>Inventory Management System</p>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon"><mat-icon>inventory_2</mat-icon></div>
+          <div class="feature-text">
+            <div class="feature-title">Track Every Item</div>
+            <div class="feature-sub">Real-time stock across all locations</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon"><mat-icon>place</mat-icon></div>
+          <div class="feature-text">
+            <div class="feature-title">Location Aware</div>
+            <div class="feature-sub">Know exactly where things are</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon"><mat-icon>payments</mat-icon></div>
+          <div class="feature-text">
+            <div class="feature-title">Price & Profit</div>
+            <div class="feature-sub">Monitor margins at a glance</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon"><mat-icon>warning</mat-icon></div>
+          <div class="feature-text">
+            <div class="feature-title">Smart Alerts</div>
+            <div class="feature-sub">Never run out of stock again</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="left-footer">
+        <span class="dot"></span>
+        Trusted by 500+ hardware stores
+      </div>
     </div>
   </div>
 
+  <!-- Form Panel -->
   <div class="auth-right">
-    <div class="auth-card">
-      <h2>Welcome back</h2>
-      <p class="card-sub">Sign in to your account</p>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Mobile-only compact brand header -->
+    <div class="mobile-brand">
+      <div class="brand-logo small">
+        <mat-icon class="brand-icon">hardware</mat-icon>
+      </div>
+      <div class="mobile-brand-text">
+        <h1>HardwareShop</h1>
+        <p>Inventory Management</p>
+      </div>
+    </div>
+
+    <div class="auth-card">
+      <div class="card-heading">
+        <h2>Welcome back</h2>
+        <p class="card-sub">Sign in to continue to your dashboard</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Username</mat-label>
           <mat-icon matPrefix>person</mat-icon>
-          <input matInput formControlName="username" placeholder="Enter your username">
-          <mat-error *ngIf="form.get('username')?.hasError('required')">Username is required</mat-error>
-          <mat-error *ngIf="form.get('username')?.hasError('minlength')">Min 3 characters</mat-error>
+          <input matInput formControlName="username"
+                 placeholder="Enter your username"
+                 autocomplete="username">
+          <mat-error *ngIf="form.get('username')?.hasError('required')">
+            Username is required
+          </mat-error>
+          <mat-error *ngIf="form.get('username')?.hasError('minlength')">
+            Min 3 characters
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -33,21 +95,33 @@
           <mat-icon matPrefix>lock</mat-icon>
           <input matInput formControlName="password"
                  [type]="hidePassword ? 'password' : 'text'"
-                 placeholder="Enter your password">
+                 placeholder="Enter your password"
+                 autocomplete="current-password">
           <button mat-icon-button matSuffix type="button"
-                  (click)="hidePassword = !hidePassword">
+                  (click)="hidePassword = !hidePassword"
+                  [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'">
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
-          <mat-error *ngIf="form.get('password')?.hasError('minlength')">Min 6 characters</mat-error>
+          <mat-error *ngIf="form.get('password')?.hasError('required')">
+            Password is required
+          </mat-error>
+          <mat-error *ngIf="form.get('password')?.hasError('minlength')">
+            Min 6 characters
+          </mat-error>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" type="submit"
+        <div class="form-row">
+          <a class="forgot-link" href="javascript:void(0)">Forgot password?</a>
+        </div>
+
+        <button mat-flat-button color="primary" type="submit"
                 class="submit-btn" [disabled]="isLoading">
           <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
-          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="!isLoading">
+            Sign In
+            <mat-icon class="arrow">arrow_forward</mat-icon>
+          </span>
         </button>
-
       </form>
 
       <div class="auth-footer">
@@ -55,5 +129,6 @@
         <a routerLink="/login/register">Create one</a>
       </div>
     </div>
+
   </div>
 </div>
