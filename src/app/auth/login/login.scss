@@ -1,4 +1,4 @@
-/* ── Global safeguards so nothing leaks on mobile ── */
+/* ─────────────── Safeguards ─────────────── */
 :host {
   display: block;
   width: 100%;
@@ -7,29 +7,25 @@
 }
 *, *::before, *::after { box-sizing: border-box; }
 
-/* ── Wrapper ──────────────────────────────────── */
+/* ─────────────── Wrapper ─────────────── */
 .auth-wrapper {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  overflow: hidden;
   background: #f8fafc;
 
   @media (max-width: 960px) {
     flex-direction: column;
-    height: auto;
     min-height: 100vh;
-    /* Dark gradient covers the whole mobile viewport */
     background: linear-gradient(160deg, #0b1120 0%, #0f172a 40%, #1e3a5f 100%);
   }
 }
 
-/* ══════════════════════════════════════════════
-   LEFT / BRAND PANEL
-   ══════════════════════════════════════════════ */
+/* ═══════════════ LEFT PANEL (Desktop only) ═══════════════ */
 .auth-left {
   flex: 1;
   position: relative;
+  overflow: hidden;
   background:
     radial-gradient(circle at 20% 20%, rgba(245,158,11,0.12) 0%, transparent 40%),
     linear-gradient(145deg, #0b1120 0%, #0f172a 50%, #1e3a5f 100%);
@@ -37,23 +33,15 @@
   display: flex;
   align-items: center;
   padding: 60px 56px;
-  overflow: hidden;
 
-  @media (max-width: 1200px) { padding: 50px 40px; }
-  @media (max-width: 960px)  {
-    flex: none;
-    width: 100%;
-    padding: 40px 28px;
-    min-height: auto;
-  }
-  @media (max-width: 960px) { display: none; }  /* hidden on mobile, replaced by compact header */
+  @media (max-width: 1200px) { padding: 48px 40px; }
+  @media (max-width: 960px)  { display: none; }
 }
 
 .bg-shape {
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
-  opacity: 0.5;
   pointer-events: none;
 
   &.shape-1 {
@@ -89,7 +77,7 @@
 }
 
 .brand-block {
-  margin-bottom: 52px;
+  margin-bottom: 48px;
 
   h1 {
     margin: 18px 0 0;
@@ -115,19 +103,13 @@
   box-shadow: 0 8px 24px rgba(245,158,11,0.35);
 
   .brand-icon {
-    font-size: 32px;
-    height: 32px;
-    width: 32px;
-    color: #fff;
+    font-size: 32px; height: 32px; width: 32px; color: #fff;
   }
 
   &.small {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 52px; height: 52px; border-radius: 14px;
     box-shadow: 0 4px 12px rgba(245,158,11,0.3);
-
-    .brand-icon { font-size: 24px; height: 24px; width: 24px; }
+    .brand-icon { font-size: 28px; height: 28px; width: 28px; }
   }
 }
 
@@ -135,7 +117,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  margin-bottom: 42px;
+  margin-bottom: 40px;
 }
 
 .feature {
@@ -144,34 +126,16 @@
   gap: 14px;
 
   .feature-icon {
-    width: 42px;
-    height: 42px;
+    width: 42px; height: 42px;
     border-radius: 12px;
     background: rgba(245,158,11,0.12);
     border: 1px solid rgba(245,158,11,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-
-    mat-icon {
-      color: #fbbf24;
-      font-size: 20px;
-      height: 20px;
-      width: 20px;
-    }
+    mat-icon { color: #fbbf24; font-size: 20px; height: 20px; width: 20px; }
   }
-
-  .feature-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #fff;
-  }
-  .feature-sub {
-    font-size: 13px;
-    color: rgba(255,255,255,0.55);
-    margin-top: 2px;
-  }
+  .feature-title { font-size: 15px; font-weight: 600; color: #fff; }
+  .feature-sub   { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 2px; }
 }
 
 .left-footer {
@@ -193,9 +157,7 @@
   }
 }
 
-/* ══════════════════════════════════════════════
-   RIGHT / FORM PANEL
-   ══════════════════════════════════════════════ */
+/* ═══════════════ RIGHT / FORM PANEL ═══════════════ */
 .auth-right {
   width: 480px;
   display: flex;
@@ -209,57 +171,37 @@
 
   @media (max-width: 960px) {
     width: 100%;
-    flex: 1;
     padding: 0;
-    min-height: 100vh;
-    background: transparent;     /* let the dark gradient show */
+    background: transparent;
     justify-content: flex-start;
   }
 }
 
-/* ── Mobile compact brand header ── */
+/* ── Mobile brand (shown on mobile only) ── */
 .mobile-brand {
   display: none;
   flex-direction: column;
   align-items: center;
   text-align: center;
   width: 100%;
-  padding: 48px 24px 32px;
-  padding-top: calc(48px + env(safe-area-inset-top));   /* notch safe */
+  padding: 44px 24px 28px;
+  padding-top: calc(44px + env(safe-area-inset-top));
   color: #fff;
-  background: transparent;
-
-  .brand-logo.small {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-
-    .brand-icon { font-size: 30px; height: 30px; width: 30px; }
-  }
 
   .mobile-brand-text {
     margin-top: 14px;
-
-    h1 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-      color: #fff;
-    }
-    p {
-      margin: 4px 0 0;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.65);
-    }
+    h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.3px; color: #fff; }
+    p  { margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.65); }
   }
 
   @media (max-width: 960px) { display: flex; }
   @media (max-width: 480px) {
-    padding: 36px 20px 28px;
-    padding-top: calc(36px + env(safe-area-inset-top));
+    padding: 32px 20px 24px;
+    padding-top: calc(32px + env(safe-area-inset-top));
+    .mobile-brand-text h1 { font-size: 20px; }
   }
 }
+
 /* ── Auth card ── */
 .auth-card {
   width: 100%;
@@ -268,16 +210,13 @@
 
   @media (max-width: 960px) {
     max-width: 100%;
-    flex: 1;
     background: #fff;
     border-radius: 28px 28px 0 0;
-    padding: 32px 24px 40px;
-    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12);
-    margin-top: 8px;
+    padding: 32px 28px 40px;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
   }
-
   @media (max-width: 480px) {
-    padding: 28px 20px 32px;
+    padding: 26px 20px 32px;
     border-radius: 24px 24px 0 0;
   }
 }
@@ -288,7 +227,7 @@
 }
 
 .card-heading {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 
   h2 {
     font-size: 28px;
@@ -299,12 +238,10 @@
 
     @media (max-width: 480px) { font-size: 22px; }
   }
-
   .card-sub {
     color: #64748b;
     margin: 0;
     font-size: 14px;
-
     @media (max-width: 480px) { font-size: 13px; }
   }
 }
@@ -313,7 +250,7 @@
 
 .full-width {
   width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .form-row {
@@ -345,7 +282,6 @@
     transform: translateY(-1px);
     box-shadow: 0 10px 22px rgba(29,78,216,0.35);
   }
-
   &[disabled] { opacity: 0.7; }
 
   span {
@@ -356,15 +292,10 @@
   }
 
   .arrow {
-    font-size: 18px;
-    height: 18px;
-    width: 18px;
+    font-size: 18px; height: 18px; width: 18px;
     transition: transform 0.2s;
   }
-
   &:hover .arrow { transform: translateX(3px); }
-
-  mat-spinner { display: inline-block; }
 
   ::ng-deep mat-spinner circle { stroke: #fff !important; }
 }
@@ -386,19 +317,15 @@
   @media (max-width: 480px) { font-size: 13px; }
 }
 
-/* ══════════════════════════════════════════════
-   Material form field polish
-   ══════════════════════════════════════════════ */
+/* ═══════════════ Material form-field polish ═══════════════ */
 ::ng-deep .auth-card {
-
   .mat-mdc-form-field { width: 100%; }
 
   .mat-mdc-text-field-wrapper {
-    border-radius: 12px !important;
     background: #fff !important;
   }
 
-  /* Round ONLY the outer corners of each outline half */
+  /* Round only the outer corners of each outline half */
   .mdc-notched-outline__leading {
     border-top-left-radius: 12px !important;
     border-bottom-left-radius: 12px !important;
@@ -406,7 +333,6 @@
     border-bottom-right-radius: 0 !important;
     min-width: 12px !important;
   }
-
   .mdc-notched-outline__trailing {
     border-top-right-radius: 12px !important;
     border-bottom-right-radius: 12px !important;
@@ -418,6 +344,5 @@
     color: #94a3b8;
     margin-right: 6px;
   }
-
   .mat-mdc-form-field-infix { min-width: 0 !important; }
 }

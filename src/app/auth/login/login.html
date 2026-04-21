@@ -2,7 +2,6 @@
 
   <!-- Brand / Marketing Panel -->
   <div class="auth-left">
-    <!-- Decorative background shapes -->
     <div class="bg-shape shape-1"></div>
     <div class="bg-shape shape-2"></div>
     <div class="bg-grid"></div>
@@ -49,7 +48,7 @@
 
       <div class="left-footer">
         <span class="dot"></span>
-        Trusted by 500+ hardware stores
+        Designed & developed by Rahil Eqbal
       </div>
     </div>
   </div>
@@ -63,7 +62,7 @@
         <mat-icon class="brand-icon">hardware</mat-icon>
       </div>
       <div class="mobile-brand-text">
-        <h1>HardwareShop</h1>
+        <h1>I.A HARDWARE</h1>
         <p>Inventory Management</p>
       </div>
     </div>
@@ -82,12 +81,8 @@
           <input matInput formControlName="username"
                  placeholder="Enter your username"
                  autocomplete="username">
-          <mat-error *ngIf="form.get('username')?.hasError('required')">
-            Username is required
-          </mat-error>
-          <mat-error *ngIf="form.get('username')?.hasError('minlength')">
-            Min 3 characters
-          </mat-error>
+          <mat-error *ngIf="form.get('username')?.hasError('required')">Username is required</mat-error>
+          <mat-error *ngIf="form.get('username')?.hasError('minlength')">Min 3 characters</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -102,12 +97,8 @@
                   [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'">
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-error *ngIf="form.get('password')?.hasError('required')">
-            Password is required
-          </mat-error>
-          <mat-error *ngIf="form.get('password')?.hasError('minlength')">
-            Min 6 characters
-          </mat-error>
+          <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
+          <mat-error *ngIf="form.get('password')?.hasError('minlength')">Min 6 characters</mat-error>
         </mat-form-field>
 
         <div class="form-row">
