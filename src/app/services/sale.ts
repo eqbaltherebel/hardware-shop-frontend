@@ -6,7 +6,7 @@ import { SaleRequest, SaleResponse, ReportResponse } from '../models/sale.model'
 @Injectable({ providedIn: 'root' })
 export class SaleService {
 
-  private apiUrl = 'http://localhost:8080/api/sales';
+  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/sales';
 
   constructor(private http: HttpClient) {}
 

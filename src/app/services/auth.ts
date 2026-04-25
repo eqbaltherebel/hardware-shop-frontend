@@ -18,7 +18,7 @@ export interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/auth';
 
   constructor(private http: HttpClient, private router: Router) {}
 

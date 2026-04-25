@@ -6,7 +6,7 @@ import { Customer, CustomerRequest } from '../models/customer.model';
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
 
-  private apiUrl = 'http://localhost:8080/api/customers';
+  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/customers';
 
   constructor(private http: HttpClient) {}
 

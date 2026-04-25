@@ -6,7 +6,7 @@ import { Category } from '../models/item.model';
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
 
-  private apiUrl = 'http://localhost:8080/api/categories';
+  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/categories';
 
   constructor(private http: HttpClient) {}
 
