@@ -6,7 +6,7 @@ import { Item, ItemRequest, PriceHistory } from '../models/item.model';
 
 @Injectable({ providedIn: 'root' })
 export class ItemService {
-  private apiUrl = 'http://localhost:8080/api/items';
+  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/items';
 
   constructor(private http: HttpClient) {}
 
@@ -76,7 +76,7 @@ export class ItemService {
   }
 
   getPriceHistory(itemId: number): Observable<PriceHistory[]> {
-    return this.http.get<PriceHistory[]>(`http://localhost:8080/api/price-history/${itemId}`, {
+    return this.http.get<PriceHistory[]>(`https://shop-inventory-ddc0.onrender.com/api/price-history/${itemId}`, {
       headers: this.getHeaders(),
     });
   }

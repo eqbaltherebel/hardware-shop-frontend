@@ -22,7 +22,7 @@ export interface LocationRequest {
 @Injectable({ providedIn: 'root' })
 export class LocationService {
 
-  private apiUrl = 'http://localhost:8080/api/locations';
+  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/locations';
 
   constructor(private http: HttpClient) {}
 

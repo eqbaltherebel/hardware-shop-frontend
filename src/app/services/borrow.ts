@@ -10,7 +10,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class BorrowService {
 
-  private api = 'http://localhost:8080/api/borrow';
+  private api = 'https://shop-inventory-ddc0.onrender.com/api/borrow';
 
   constructor(private http: HttpClient) {}
 
