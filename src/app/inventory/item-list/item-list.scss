@@ -336,8 +336,15 @@
   .card-name { font-size: 13px; }
   .sell-price { font-size: 15px; }
   .card-desc { display: none; }
-  .card-chips { display: none; }      // save vertical space
-  .card-sub-row { display: none; }    // hide buy price & profit on tiny screens
+  
+  /* Show only location chip, hide category */
+  .card-chips { 
+    display: flex;
+    min-height: auto;
+  }
+  .chip-category { display: none; }
+  
+  .card-sub-row { display: none; }
   .card-body { padding: 8px; gap: 4px; }
 
   .card-actions {
