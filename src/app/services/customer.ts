@@ -1,12 +1,13 @@
-import { Injectable, ChangeDetectorRef } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Customer, CustomerRequest } from '../models/customer.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
 
-  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/customers';
+  private apiUrl = `${environment.apiBaseUrl}/customers`;
 
   constructor(private http: HttpClient) {}
 

@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SaleRequest, SaleResponse, ReportResponse } from '../models/sale.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SaleService {
 
-  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/sales';
+  private apiUrl = `${environment.apiBaseUrl}/sales`;
 
   constructor(private http: HttpClient) {}
 

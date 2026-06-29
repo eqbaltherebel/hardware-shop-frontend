@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Category } from '../models/item.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
 
-  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/categories';
+  private apiUrl = `${environment.apiBaseUrl}/categories`;
 
   constructor(private http: HttpClient) {}
 

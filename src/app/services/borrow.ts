@@ -6,11 +6,12 @@ import {
   BorrowPaymentRequest, BorrowSummaryResponse,
   LedgerResponse
 } from '../models/borrow.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class BorrowService {
 
-  private api = 'https://shop-inventory-ddc0.onrender.com/api/borrow';
+  private api = `${environment.apiBaseUrl}/borrow`;
 
   constructor(private http: HttpClient) {}
 

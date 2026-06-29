@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Location {
   id?: number;
@@ -22,7 +23,7 @@ export interface LocationRequest {
 @Injectable({ providedIn: 'root' })
 export class LocationService {
 
-  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/locations';
+  private apiUrl = `${environment.apiBaseUrl}/locations`;
 
   constructor(private http: HttpClient) {}
 

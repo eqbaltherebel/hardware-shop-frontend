@@ -3,10 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Item, ItemRequest, PriceHistory } from '../models/item.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ItemService {
-  private apiUrl = 'https://shop-inventory-ddc0.onrender.com/api/items';
+  private apiUrl = `${environment.apiBaseUrl}/items`;
 
   constructor(private http: HttpClient) {}
 
@@ -76,7 +77,7 @@ export class ItemService {
   }
 
   getPriceHistory(itemId: number): Observable<PriceHistory[]> {
-    return this.http.get<PriceHistory[]>(`https://shop-inventory-ddc0.onrender.com/api/price-history/${itemId}`, {
+    return this.http.get<PriceHistory[]>(`${environment.apiBaseUrl}/price-history/${itemId}`, {
       headers: this.getHeaders(),
     });
   }
