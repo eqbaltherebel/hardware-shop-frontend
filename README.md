@@ -1,59 +1,160 @@
-# HardwareShopFrontend
+# Hardware Shop — Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.7.
+> Angular 21 single-page app (with server-side rendering) for managing a hardware shop: inventory, sales, customers and a credit (borrow) ledger. Talks to the [Shop Inventory API](https://github.com/eqbaltherebel/shop_inventory).
 
-## Development server
+[![Angular](https://img.shields.io/badge/Angular-21-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Angular Material](https://img.shields.io/badge/Angular%20Material-21-757575?logo=angular&logoColor=white)](https://material.angular.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-To start a local development server, run:
+---
+
+## Table of contents
+
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Screens](#screens)
+- [Getting started](#getting-started)
+- [Environments & configuration](#environments--configuration)
+- [Available scripts](#available-scripts)
+- [Project structure](#project-structure)
+- [Running with Docker](#running-with-docker)
+- [Deployment](#deployment)
+- [Coding standards](#coding-standards)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- **JWT auth** — login / register, token persisted and attached via an HTTP interceptor; routes protected by a functional guard.
+- **Dashboard** — key metrics and charts (Chart.js via ng2-charts).
+- **Inventory** — item CRUD with image upload, categories, storage locations, low-stock highlighting and price-history views.
+- **Sales** — create sales, cancel/restock, daily and date-range reports.
+- **Customers** — directory with search and per-customer sales history.
+- **Borrow ledger** — credit entries, payments, running balances and overdue tracking.
+- **Responsive UI** — Angular Material, mobile-friendly layouts.
+- **SSR** — server-side rendering via Angular SSR + Express for fast first paint.
+
+## Tech stack
+
+| Area | Technology |
+|------|------------|
+| Framework | Angular 21 (standalone components, signals, lazy-loaded routes) |
+| Language | TypeScript 5.9 |
+| UI | Angular Material + CDK |
+| Charts | Chart.js + ng2-charts |
+| SSR | @angular/ssr + Express |
+| Testing | Vitest |
+| Tooling | Angular CLI, Prettier |
+
+## Screens
+
+> _Add screenshots/GIFs here (e.g. `docs/screenshots/dashboard.png`)._
+
+| Dashboard | Inventory | Ledger |
+|-----------|-----------|--------|
+| _tbd_ | _tbd_ | _tbd_ |
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 20+ (22 recommended)
+- npm 10+
+- A running [Shop Inventory API](https://github.com/eqbaltherebel/shop_inventory) (locally on `http://localhost:8080` by default in development)
+
+### Install & run
 
 ```bash
-ng serve
+git clone https://github.com/eqbaltherebel/hardware-shop-frontend.git
+cd hardware-shop-frontend
+npm install
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open `http://localhost:4200/`. In development the app points at
+`http://localhost:8080/api` (see below).
 
-## Code scaffolding
+## Environments & configuration
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+The backend base URL is centralized in `src/environments/`:
+
+| File | Used by | `apiBaseUrl` |
+|------|---------|--------------|
+| `environment.ts` | `ng build` (production) | `https://shop-inventory-ddc0.onrender.com/api` |
+| `environment.development.ts` | `ng serve` | `http://localhost:8080/api` |
+
+`angular.json` swaps the file for the development configuration via
+`fileReplacements`. To target a different backend, edit the relevant file —
+no service code needs to change.
+
+## Available scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm start` | Dev server at `:4200` (development environment) |
+| `npm run build` | Production build into `dist/` |
+| `npm run watch` | Rebuild on change (development config) |
+| `npm test` | Unit tests (Vitest) |
+| `npm run serve:ssr:hardware-shop-frontend` | Run the SSR server from `dist/` |
+
+## Project structure
+
+```
+src/app
+├── auth/           # login & register
+├── dashboard/      # metrics & charts
+├── inventory/      # items, item form/detail, price history
+├── location/       # storage locations
+├── sales/          # sale form/list/detail, reports
+├── customers/      # customer list & detail
+├── borrow/         # ledger, entries, payments
+├── services/       # HTTP services (use environment.apiBaseUrl)
+├── models/         # TypeScript interfaces
+├── guards/         # auth route guard
+├── interceptors/   # JWT HTTP interceptor
+└── shell/          # app shell / navigation
+src/environments/   # environment.ts, environment.development.ts
+```
+
+## Running with Docker
+
+The app is server-side rendered, so the container runs the Node SSR server:
 
 ```bash
-ng generate component component-name
+docker build -t hardware-shop-frontend .
+docker run -p 4000:4000 hardware-shop-frontend
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Then open `http://localhost:4000/`.
 
-```bash
-ng generate --help
-```
+## Deployment
 
-## Building
+Any static or Node host works. For SSR, deploy the `dist/` output and run the
+server entry (`server.mjs`); for a static-only deploy, host the browser build
+output behind your web server. Set the production `apiBaseUrl` to your
+deployed API before building.
 
-To build the project run:
+## Coding standards
 
-```bash
-ng build
-```
+This project follows the Angular style captured in `AGENTS.md` /
+`.github/copilot-instructions.md`: standalone components, signals for state,
+`inject()`, native control flow (`@if`/`@for`), reactive forms, `OnPush`
+change detection and strict TypeScript. Please keep contributions consistent.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Roadmap
 
-## Running unit tests
+- Replace remaining manual token handling with the interceptor everywhere
+- Global error/toast handling and loading states
+- Pagination on large lists
+- E2E tests (Playwright/Cypress) and a CI test stage
+- Screenshots & live demo link
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Contributing
 
-```bash
-ng test
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Running end-to-end tests
+## License
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Released under the [MIT License](LICENSE).
